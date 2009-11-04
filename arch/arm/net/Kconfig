@@ -1,0 +1,5 @@
+config BPF_JIT
+	bool
+	default y
+	help
+	  Enables BPF_JIT
