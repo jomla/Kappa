@@ -551,6 +551,7 @@ u32 ddl_handle_seqhdr_fail_error(struct ddl_context *ddl_context)
 		case HEADER_NOT_FOUND:
 		case INVALID_SPS_ID:
 		case INVALID_PPS_ID:
+		case PROFILE_UNKOWN:
 			ERR("SEQ-HDR-FAILED!!!");
 			if (decoder->header_in_start) {
 				decoder->header_in_start = false;
