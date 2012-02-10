@@ -874,7 +874,13 @@ int mdp4_overlay_pipe_staged(int mixer)
 
 void mdp4_mixer_stage_up(struct mdp4_overlay_pipe *pipe)
 {
+	u32 flush_bits = 0;
 	uint32 data, mask, snum, stage, mixer, pnum;
+
+	if (mixer == MDP4_MIXER0)
+		flush_bits |= 0x1;
+	else if (mixer == MDP4_MIXER1)
+		flush_bits |= 0x2;
 
 	mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_ON, FALSE);
 
