@@ -119,6 +119,10 @@ config SUSPEND_FREEZER
 config HIBERNATION_NVS
 	bool
 
+config CPU_PM
+	bool "CPU Power Managment"
+	depends on SUSPEND || CPU_IDLE
+
 config HAS_WAKELOCK
 	bool
 
