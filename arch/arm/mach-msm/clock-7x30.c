@@ -33,6 +33,7 @@
 #include "clock-local.h"
 #include "clock-7x30.h"
 #include "proc_comm.h"
+#include  <asm/div64.h>
 
 #define REG_BASE(off) (MSM_CLK_CTL_BASE + (off))
 #define REG(off) (MSM_CLK_CTL_SH2_BASE + (off))
