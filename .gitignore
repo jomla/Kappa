@@ -32,6 +32,16 @@ modules.builtin
 *.lzo
 *.patch
 *.gcno
+/bootimg/*
+*.rej
+*.orig
+*.bad
+*.bad2
+*.back
+err
+di
+co
+
 
 #
 # Top-level generic files
