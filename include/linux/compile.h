@@ -1,8 +1,8 @@
-/* This file is auto generated, version 1 */
+/* This file is auto generated, version 3 */
 /*  PREEMPT */
 #define UTS_MACHINE "arm"
-#define UTS_VERSION "#1 PREEMPT Tue Mar 12 00:59:58 CET 2013"
-#define LINUX_COMPILE_TIME "00:59:58"
+#define UTS_VERSION "#3 PREEMPT Tue Mar 12 01:31:20 CET 2013"
+#define LINUX_COMPILE_TIME "01:31:20"
 #define LINUX_COMPILE_BY "ka"
 #define LINUX_COMPILE_HOST "ti.ka.st"
 #define LINUX_COMPILE_DOMAIN "ka.st"
