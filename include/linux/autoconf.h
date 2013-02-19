@@ -1,7 +1,7 @@
 /*
  * Automatically generated C config: don't edit
  * Linux kernel version: 2.6.32.9
- * Tue Feb 19 10:31:03 2013
+ * Tue Feb 19 12:06:21 2013
  */
 #define AUTOCONF_INCLUDED
 #define CONFIG_VIDEO_V4L1_COMPAT 1
@@ -205,6 +205,7 @@
 #define CONFIG_PROC_PAGE_MONITOR 1
 #define CONFIG_ANDROID_PARANOID_NETWORK 1
 #define CONFIG_INET6_XFRM_TUNNEL 1
+#define CONFIG_IOSCHED_BFQ 1
 #define CONFIG_SLIP 1
 #define CONFIG_AMSS_7X25_VERSION_2009 1
 #define CONFIG_IOSCHED_CFQ 1
