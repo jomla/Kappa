@@ -42,6 +42,7 @@
 #include <linux/seq_file.h>
 #include <linux/quotaops.h>
 #include <linux/smp_lock.h>
+#include <linux/cleancache.h>
 
 #define MLOG_MASK_PREFIX ML_SUPER
 #include <cluster/masklog.h>
@@ -1436,7 +1437,7 @@ static int ocfs2_parse_options(struct super_block *sb,
 	}
 
 	status = 1;
-
+	cleancache_init_shared_fs((char *)&uuid_net_key, sb);
 bail:
 	mlog_exit(status);
 	return status;
