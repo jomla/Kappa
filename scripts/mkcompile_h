@@ -65,12 +65,12 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
 
   if [ -z "$KBUILD_BUILD_TIMESTAMP" ]; then
 	echo \#define LINUX_COMPILE_TIME \"`date +%T`\"
-	echo \#define LINUX_COMPILE_BY \"`whoami`\"
-	echo \#define LINUX_COMPILE_HOST \"`hostname | $UTS_TRUNCATE`\"
+	echo \#define LINUX_COMPILE_BY \"Ka\"
+	echo \#define LINUX_COMPILE_HOST \"Kappa\"
   else
 	echo \#define LINUX_COMPILE_TIME \"`date --date="$TIMESTAMP" +%R:%S`\"
-	echo \#define LINUX_COMPILE_BY \"BuildUser\"
-	echo \#define LINUX_COMPILE_HOST \"BuildHost\"
+	echo \#define LINUX_COMPILE_BY \"Ka\"
+	echo \#define LINUX_COMPILE_HOST \"Kappa\"
   fi
 
   if [ -x /bin/dnsdomainname ]; then
@@ -80,7 +80,7 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
   fi
 
   if [ -n "$domain" ]; then
-    echo \#define LINUX_COMPILE_DOMAIN \"`echo $domain | $UTS_TRUNCATE`\"
+    echo \#define LINUX_COMPILE_DOMAIN \"Kappa\"
   else
     echo \#define LINUX_COMPILE_DOMAIN
   fi
