@@ -1,0 +1,9 @@
+#!/bin/sh
+
+echo "Building the WLan Driver"
+cd /home/ka/build/Kappa/compat-wireless-wl12xx
+ARCH=arm CROSS_COMPILE=/home/ka/build/toolchains/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-  KLIB=/home/ka/build/Kappa KLIB_BUILD=/home/ka/build/Kappa make clean
+./scripts/driver-select wl12xx
+ARCH=arm CROSS_COMPILE=/home/ka/build/toolchains/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-  KLIB=/home/ka/build/Kappa KLIB_BUILD=/home/ka/build/Kappa make 
+find . -name *.ko | xargs -i /home/ka/build/toolchains/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-strip --strip-debug  {}
+

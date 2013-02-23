@@ -1,0 +1,22 @@
+#!/bin/bash
+
+cd /home/ka/build/Kappa
+ARCH=arm CROSS_COMPILE=/home/ka/build/toolchains/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-  make menuconfig
+ARCH=arm CROSS_COMPILE=/home/ka/build/toolchains/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-  make 
+
+echo "Build Modules?" 
+select yn in "y" "n"; do 
+	case $yn in 
+        	y ) ARCH=arm CROSS_COMPILE=/home/ka/build/toolchains/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-  make modules; break;;
+                n ) exit;; 
+        esac 
+done
+
+echo "Build Wifi Drivers?"                                                                                                                    
+select yn in "y" "n"; do                                                                                                                   
+        case $yn in                                                                                                                           
+                y ) mkwifi; break;;
+                n ) exit;; 
+        esac 
+done    
+
