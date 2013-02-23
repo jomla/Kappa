@@ -7,8 +7,8 @@ echo "Removing old modules from Ramdisk tree"
 rm -fr /home/ka/build/ramdisk/kappa-ramdisk/system/lib/*
 
 echo "Copying Kernel drivers into Ramdisk (/system/lib)"
-find . -name *.ko -path ./compat-wireless-wl12xx  -prune
-find . -name *.ko -path ./compat-wireless-wl12xx | xargs -i cp {} /home/ka/build/ramdisk/kappa-ramdisk/system/lib/ 
+find . -name *.ko -o -type d  -name compat-wireless-wl12xx -prune
+find . -name *.ko -o -type d  -name compat-wireless-wl12xx -prune | xargs -i cp {} /home/ka/build/ramdisk/kappa-ramdisk/system/lib/ 
 
 echo "Copying Wifi drivers into Ramdisk (/system/lib/modules)"
 cd /home/ka/build/Kappa/compat-wireless-wl12xx/
