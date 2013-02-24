@@ -33,14 +33,9 @@
 #include <asm/system.h>
 #include <asm/mach-types.h>
 #include <linux/semaphore.h>
-#include <linux/msm_kgsl.h>
 
 #include "mdp.h"
 #include "msm_fb.h"
-
-#define MDP_IS_IMGTYPE_BAD(x) (((x) >= MDP_IMGTYPE_LIMIT) && \
-				(((x) < MDP_IMGTYPE2_START) || \
-				 ((x) >= MDP_IMGTYPE_LIMIT2)))
 
 static uint32_t bytes_per_pixel[] = {
 	[MDP_RGB_565] = 2,
@@ -49,7 +44,6 @@ static uint32_t bytes_per_pixel[] = {
 	[MDP_ARGB_8888] = 4,
 	[MDP_RGBA_8888] = 4,
 	[MDP_BGRA_8888] = 4,
-	[MDP_RGBX_8888] = 4,
 	[MDP_Y_CBCR_H2V1] = 1,
 	[MDP_Y_CBCR_H2V2] = 1,
 	[MDP_Y_CRCB_H2V1] = 1,
@@ -58,19 +52,10 @@ static uint32_t bytes_per_pixel[] = {
 	[MDP_BGR_565] = 2
 };
 
+extern MDP_CCS_TYPE mdp_ccs_yuv2rgb;
+extern MDP_CCS_TYPE mdp_ccs_rgb2yuv;
 extern uint32 mdp_plv[];
 extern struct semaphore mdp_ppp_mutex;
-
-int mdp_get_bytes_per_pixel(uint32_t format)
-{
-	int bpp = -EINVAL;
-	if (format < ARRAY_SIZE(bytes_per_pixel))
-		bpp = bytes_per_pixel[format];
-
-	if (bpp <= 0)
-		printk(KERN_ERR "%s incorrect format %d\n", __func__, format);
-	return bpp;
-}
 
 static uint32 mdp_conv_matx_rgb2yuv(uint32 input_pixel,
 				    uint16 *matrix_and_bias_vector,
@@ -108,7 +93,7 @@ static uint32 mdp_conv_matx_rgb2yuv(uint32 input_pixel,
 	C_low_limit = (int32) clamp_vector[2];
 	C_high_limit = (int32) clamp_vector[3];
 
-	if (look_up_table == 0)	/* check for NULL point */
+	if (look_up_table == 0)	// check for NULL point
 		_is_lookup_table_enabled = 0;
 	else
 		_is_lookup_table_enabled = 1;
@@ -118,16 +103,14 @@ static uint32 mdp_conv_matx_rgb2yuv(uint32 input_pixel,
 		comp_C1 = (look_up_table[comp_C1] >> 8) & 0xFF;
 		comp_C0 = (look_up_table[comp_C0] >> 0) & 0xFF;
 	}
-	/*
-	 * Color Conversion
-	 * reorder input colors
-	 */
+	// Color Conversion
+	// reorder input colors
 	temp = comp_C2;
 	comp_C2 = comp_C1;
 	comp_C1 = comp_C0;
 	comp_C0 = temp;
 
-	/* matrix multiplication */
+	// matrix multiplication
 	temp1 = comp_C0 * matrix[0] + comp_C1 * matrix[1] + comp_C2 * matrix[2];
 	temp2 = comp_C0 * matrix[3] + comp_C1 * matrix[4] + comp_C2 * matrix[5];
 	temp3 = comp_C0 * matrix[6] + comp_C1 * matrix[7] + comp_C2 * matrix[8];
@@ -136,17 +119,17 @@ static uint32 mdp_conv_matx_rgb2yuv(uint32 input_pixel,
 	comp_C1 = temp2 + 0x100;
 	comp_C2 = temp3 + 0x100;
 
-	/* take interger part */
+	// take interger part
 	comp_C0 >>= 9;
 	comp_C1 >>= 9;
 	comp_C2 >>= 9;
 
-	/* post bias (+) */
+	// post bias (+)
 	comp_C0 += bias_vector[0];
 	comp_C1 += bias_vector[1];
 	comp_C2 += bias_vector[2];
 
-	/* limit pixel to 8-bit */
+	// limit pixel to 8-bit
 	if (comp_C0 < 0)
 		comp_C0 = 0;
 
@@ -165,7 +148,7 @@ static uint32 mdp_conv_matx_rgb2yuv(uint32 input_pixel,
 	if (comp_C2 > 255)
 		comp_C2 = 255;
 
-	/* clamp */
+	// clamp
 	if (comp_C0 < Y_low_limit)
 		comp_C0 = Y_low_limit;
 
@@ -223,12 +206,12 @@ uint32 mdp_conv_matx_yuv2rgb(uint32 input_pixel,
 	C_low_limit = (int32) clamp_vector[2];
 	C_high_limit = (int32) clamp_vector[3];
 
-	if (look_up_table == 0)	/* check for NULL point */
+	if (look_up_table == 0)	// check for NULL point
 		_is_lookup_table_enabled = 0;
 	else
 		_is_lookup_table_enabled = 1;
 
-	/* clamp */
+	// clamp
 	if (comp_C0 < Y_low_limit)
 		comp_C0 = Y_low_limit;
 
@@ -247,15 +230,13 @@ uint32 mdp_conv_matx_yuv2rgb(uint32 input_pixel,
 	if (comp_C2 > C_high_limit)
 		comp_C2 = C_high_limit;
 
-	/*
-	 * Color Conversion
-	 * pre bias (-)
-	 */
+	// Color Conversion
+	// pre bias (-)
 	comp_C0 -= bias_vector[0];
 	comp_C1 -= bias_vector[1];
 	comp_C2 -= bias_vector[2];
 
-	/* matrix multiplication */
+	// matrix multiplication
 	temp1 = comp_C0 * matrix[0] + comp_C1 * matrix[1] + comp_C2 * matrix[2];
 	temp2 = comp_C0 * matrix[3] + comp_C1 * matrix[4] + comp_C2 * matrix[5];
 	temp3 = comp_C0 * matrix[6] + comp_C1 * matrix[7] + comp_C2 * matrix[8];
@@ -264,18 +245,18 @@ uint32 mdp_conv_matx_yuv2rgb(uint32 input_pixel,
 	comp_C1 = temp2 + 0x100;
 	comp_C2 = temp3 + 0x100;
 
-	/* take interger part */
+	// take interger part
 	comp_C0 >>= 9;
 	comp_C1 >>= 9;
 	comp_C2 >>= 9;
 
-	/* reorder output colors */
+	// reorder output colors
 	temp = comp_C0;
 	comp_C0 = comp_C1;
 	comp_C1 = comp_C2;
 	comp_C2 = temp;
 
-	/* limit pixel to 8-bit */
+	// limit pixel to 8-bit
 	if (comp_C0 < 0)
 		comp_C0 = 0;
 
@@ -294,7 +275,7 @@ uint32 mdp_conv_matx_yuv2rgb(uint32 input_pixel,
 	if (comp_C2 > 255)
 		comp_C2 = 255;
 
-	/* Look-up table */
+	// Look-up table
 	if (_is_lookup_table_enabled == 1) {
 		comp_C2 = (look_up_table[comp_C2] >> 16) & 0xFF;
 		comp_C1 = (look_up_table[comp_C1] >> 8) & 0xFF;
@@ -313,24 +294,22 @@ static uint32 mdp_calc_tpval(MDPIMG *mdpImg)
 	tpVal = 0;
 	if ((mdpImg->imgType == MDP_RGB_565)
 	    || (mdpImg->imgType == MDP_BGR_565)) {
-		/*
-		 * transparent color conversion into 24 bpp
-		 *
-		 * C2R_8BIT
-		 * left shift the entire bit and or it with the upper most bits
-		 */
+		// transparent color conversion into 24 bpp
+
+		// C2R_8BIT
+		// left shift the entire bit and or it with the upper most bits
 		plane_tp = (uint8) ((mdpImg->tpVal & 0xF800) >> 11);
 		tpVal |= ((plane_tp << 3) | ((plane_tp & 0x1C) >> 2)) << 16;
 
-		/* C1B_8BIT */
+		// C1B_8BIT
 		plane_tp = (uint8) (mdpImg->tpVal & 0x1F);
 		tpVal |= ((plane_tp << 3) | ((plane_tp & 0x1C) >> 2)) << 8;
 
-		/* C0G_8BIT */
+		// C0G_8BIT
 		plane_tp = (uint8) ((mdpImg->tpVal & 0x7E0) >> 5);
 		tpVal |= ((plane_tp << 2) | ((plane_tp & 0x30) >> 4));
 	} else {
-		/* 24bit RGB to RBG conversion */
+		//24bit RGB to RBG conversion
 
 		tpVal = (mdpImg->tpVal & 0xFF00) >> 8;
 		tpVal |= (mdpImg->tpVal & 0xFF) << 8;
@@ -379,15 +358,9 @@ static void mdp_ppp_setbg(MDPIBUF *iBuf)
 	switch (iBuf->ibuf_type) {
 	case MDP_BGR_565:
 	case MDP_RGB_565:
-		/* 888 = 3bytes
-		 * RGB = 3Components
-		 * RGB interleaved
-		 */
-		ppp_src_cfg_reg = PPP_SRC_C2R_5BITS | PPP_SRC_C0G_6BITS |
-			PPP_SRC_C1B_5BITS | PPP_SRC_BPP_INTERLVD_2BYTES |
-			PPP_SRC_INTERLVD_3COMPONENTS | PPP_SRC_UNPACK_TIGHT |
-			PPP_SRC_UNPACK_ALIGN_LSB |
-			PPP_SRC_FETCH_PLANES_INTERLVD;
+		ppp_src_cfg_reg = PPP_SRC_C2R_5BITS | PPP_SRC_C0G_6BITS | PPP_SRC_C1B_5BITS | PPP_SRC_BPP_INTERLVD_2BYTES |	//888 = 3bytes
+		    PPP_SRC_INTERLVD_3COMPONENTS |	//RGB = 3Components
+		    PPP_SRC_UNPACK_TIGHT | PPP_SRC_UNPACK_ALIGN_LSB | PPP_SRC_FETCH_PLANES_INTERLVD;	//RGB interleaved
 
 		if (iBuf->ibuf_type == MDP_RGB_565)
 			unpack_pattern =
@@ -398,15 +371,9 @@ static void mdp_ppp_setbg(MDPIBUF *iBuf)
 		break;
 
 	case MDP_RGB_888:
-		/*
-		 * 888 = 3bytes
-		 * RGB = 3Components
-		 * RGB interleaved
-		 */
-		ppp_src_cfg_reg = PPP_SRC_C2R_8BITS | PPP_SRC_C0G_8BITS |
-		PPP_SRC_C1B_8BITS | PPP_SRC_BPP_INTERLVD_3BYTES |
-		PPP_SRC_INTERLVD_3COMPONENTS | PPP_SRC_UNPACK_TIGHT |
-		PPP_SRC_UNPACK_ALIGN_LSB | PPP_SRC_FETCH_PLANES_INTERLVD;
+		ppp_src_cfg_reg = PPP_SRC_C2R_8BITS | PPP_SRC_C0G_8BITS | PPP_SRC_C1B_8BITS | PPP_SRC_BPP_INTERLVD_3BYTES |	//888 = 3bytes
+		    PPP_SRC_INTERLVD_3COMPONENTS |	//RGB = 3Components
+		    PPP_SRC_UNPACK_TIGHT | PPP_SRC_UNPACK_ALIGN_LSB | PPP_SRC_FETCH_PLANES_INTERLVD;	//RGB interleaved
 
 		unpack_pattern =
 		    MDP_GET_PACK_PATTERN(0, CLR_R, CLR_G, CLR_B, 8);
@@ -416,30 +383,17 @@ static void mdp_ppp_setbg(MDPIBUF *iBuf)
 	case MDP_RGBA_8888:
 	case MDP_ARGB_8888:
 	case MDP_XRGB_8888:
-	case MDP_RGBX_8888:
-		/*
-		 * 8888 = 4bytes
-		 * ARGB = 4Components
-		 * ARGB interleaved
-		 */
-		ppp_src_cfg_reg = PPP_SRC_C2R_8BITS | PPP_SRC_C0G_8BITS |
-		PPP_SRC_C1B_8BITS | PPP_SRC_C3A_8BITS | PPP_SRC_C3_ALPHA_EN |
-		PPP_SRC_BPP_INTERLVD_4BYTES | PPP_SRC_INTERLVD_4COMPONENTS |
-		PPP_SRC_UNPACK_TIGHT | PPP_SRC_UNPACK_ALIGN_LSB |
-		PPP_SRC_FETCH_PLANES_INTERLVD;
+		ppp_src_cfg_reg = PPP_SRC_C2R_8BITS | PPP_SRC_C0G_8BITS | PPP_SRC_C1B_8BITS | PPP_SRC_C3A_8BITS | PPP_SRC_C3_ALPHA_EN | PPP_SRC_BPP_INTERLVD_4BYTES |	//8888 = 4bytes
+		    PPP_SRC_INTERLVD_4COMPONENTS |	//ARGB = 4Components
+		    PPP_SRC_UNPACK_TIGHT | PPP_SRC_UNPACK_ALIGN_LSB | PPP_SRC_FETCH_PLANES_INTERLVD;	//ARGB interleaved
 
 		if (iBuf->ibuf_type == MDP_BGRA_8888)
 			unpack_pattern =
 			    MDP_GET_PACK_PATTERN(CLR_ALPHA, CLR_R, CLR_G, CLR_B,
 						 8);
-		else if (iBuf->ibuf_type == MDP_RGBA_8888 ||
-				 iBuf->ibuf_type == MDP_RGBX_8888)
+		else if (iBuf->ibuf_type == MDP_RGBA_8888)
 			unpack_pattern =
 			    MDP_GET_PACK_PATTERN(CLR_ALPHA, CLR_B, CLR_G, CLR_R,
-						 8);
-		else if (iBuf->ibuf_type == MDP_XRGB_8888)
-			unpack_pattern =
-			    MDP_GET_PACK_PATTERN(CLR_ALPHA, CLR_R, CLR_G, CLR_B,
 						 8);
 		else
 			unpack_pattern =
@@ -505,21 +459,22 @@ static void mdp_ppp_setbg(MDPIBUF *iBuf)
 		return;
 	}
 
-	/* starting input address adjustment */
+	//starting input address adjustment
 	mdp_adjust_start_addr(&bg0_addr, &bg1_addr, v_slice, h_slice,
 			      iBuf->roi.lcd_x, iBuf->roi.lcd_y,
 			      iBuf->ibuf_width, iBuf->ibuf_height, iBuf->bpp,
 			      iBuf, 1);
 
-	/*
-	 * 0x01c0: background plane 0 addr
-	 * 0x01c4: background plane 1 addr
-	 * 0x01c8: background plane 2 addr
-	 * 0x01cc: bg y stride for plane 0 and 1
-	 * 0x01d0: bg y stride for plane 2
-	 * 0x01d4: bg src PPP config
-	 * 0x01d8: unpack pattern
-	 */
+	/*---------------------------------------------------------
+	// 0x01c0: background plane 0 addr
+	// 0x01c4: background plane 1 addr
+	// 0x01c8: background plane 2 addr
+	// 0x01cc: bg y stride for plane 0 and 1
+	// 0x01d0: bg y stride for plane 2
+	// 0x01d4: bg src PPP config
+	// 0x01d8: unpack pattern
+	/---------------------------------------------------------*/
+
 	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x01c0, bg0_addr);
 	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x01c4, bg1_addr);
 
@@ -541,7 +496,6 @@ static void mdp_ppp_setbg(MDPIBUF *iBuf)
 	((format == MDP_Y_CBCR_H2V2 || format == MDP_Y_CRCB_H2V2) ?  2 :\
 	(format == MDP_Y_CBCR_H2V1 || format == MDP_Y_CRCB_H2V1) ?  1 : 1)
 
-#ifdef CONFIG_ANDROID_PMEM
 static void get_len(struct mdp_img *img, struct mdp_rect *rect, uint32_t bpp,
 			uint32_t *len0, uint32_t *len1)
 {
@@ -555,6 +509,7 @@ static void get_len(struct mdp_img *img, struct mdp_rect *rect, uint32_t bpp,
 static void flush_imgs(struct mdp_blit_req *req, int src_bpp, int dst_bpp,
 			struct file *p_src_file, struct file *p_dst_file)
 {
+#ifdef CONFIG_ANDROID_PMEM
 	uint32_t src0_len, src1_len, dst0_len, dst1_len;
 
 	/* flush src images to memory before dma to mdp */
@@ -574,11 +529,8 @@ static void flush_imgs(struct mdp_blit_req *req, int src_bpp, int dst_bpp,
 	if (IS_PSEUDOPLNR(req->dst.format))
 		flush_pmem_file(p_dst_file,
 			req->dst.offset + dst0_len, dst1_len);
-}
-#else
-static void flush_imgs(struct mdp_blit_req *req, int src_bpp, int dst_bpp,
-			struct file *p_src_file, struct file *p_dst_file) { }
 #endif
+}
 
 static void mdp_start_ppp(struct msm_fb_data_type *mfd, MDPIBUF *iBuf,
 struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
@@ -618,9 +570,9 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 	/* Wait for the pipe to clear */
 	do { } while (mdp_ppp_pipe_wait() <= 0);
 
-	/*
-	 * destination config
-	 */
+	////////////////////////////////
+	// destination config
+	////////////////////////////////
 	switch (iBuf->ibuf_type) {
 	case MDP_RGB_888:
 		dst_packPattern =
@@ -632,23 +584,16 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 		    PPP_DST_BPP_3BYTES | PPP_DST_PLANE_INTERLVD;
 		break;
 
-	case MDP_BGRA_8888:
 	case MDP_XRGB_8888:
 	case MDP_ARGB_8888:
 	case MDP_RGBA_8888:
-	case MDP_RGBX_8888:
 		if (iBuf->ibuf_type == MDP_BGRA_8888)
 			dst_packPattern =
 			    MDP_GET_PACK_PATTERN(CLR_ALPHA, CLR_R, CLR_G, CLR_B,
 						 8);
-		else if (iBuf->ibuf_type == MDP_RGBA_8888 ||
-				 iBuf->ibuf_type == MDP_RGBX_8888)
+		else if (iBuf->ibuf_type == MDP_RGBA_8888)
 			dst_packPattern =
 			    MDP_GET_PACK_PATTERN(CLR_ALPHA, CLR_B, CLR_G, CLR_R,
-						 8);
-		else if (iBuf->ibuf_type == MDP_XRGB_8888)
-			dst_packPattern =
-			    MDP_GET_PACK_PATTERN(CLR_ALPHA, CLR_R, CLR_G, CLR_B,
 						 8);
 		else
 			dst_packPattern =
@@ -688,24 +633,18 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 		ppp_operation_reg |= PPP_OP_DST_CHROMA_420;
 		outputRGB = FALSE;
 		pseudoplanr_output = TRUE;
-		/*
-		 * vertically (y direction) and horizontally (x direction)
-		 * sample reduction by 2
-		 */
-
-		/*
-		 * H2V2(YUV420) Cosite
-		 *
-		 * Y    Y    Y    Y
-		 * CbCr      CbCr
-		 * Y    Y    Y    Y
-		 * Y    Y    Y    Y
-		 * CbCr      CbCr
-		 * Y    Y    Y    Y
-		 */
+		// vertically (y direction) and horizontally (x direction) sample reduction by 2
+		// H2V2(YUV420) Cosite
+		//
+		// Y    Y    Y    Y
+		// CbCr      CbCr
+		// Y    Y    Y    Y
+		// Y    Y    Y    Y
+		// CbCr      CbCr
+		// Y    Y    Y    Y
 		dv_slice = dh_slice = 2;
 
-		/* (x,y) and (width,height) must be even numbern */
+		// (x,y) and (width,height) must be even number
 		iBuf->roi.lcd_x = (iBuf->roi.lcd_x / 2) * 2;
 		iBuf->roi.dst_width = (iBuf->roi.dst_width / 2) * 2;
 		iBuf->roi.x = (iBuf->roi.x / 2) * 2;
@@ -729,25 +668,21 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 
 		ppp_operation_reg |= PPP_OP_DST_CHROMA_H2V1;
 		outputRGB = FALSE;
-		/*
-		 * horizontally (x direction) sample reduction by 2
-		 *
-		 * H2V1(YUV422) Cosite
-		 *
-		 * YCbCr    Y    YCbCr    Y
-		 * YCbCr    Y    YCbCr    Y
-		 * YCbCr    Y    YCbCr    Y
-		 * YCbCr    Y    YCbCr    Y
-		 */
+		// horizontally (x direction) sample reduction by 2
+		//
+		// H2V1(YUV422) Cosite
+		//
+		// YCbCr    Y    YCbCr    Y
+		// YCbCr    Y    YCbCr    Y
+		// YCbCr    Y    YCbCr    Y
+		// YCbCr    Y    YCbCr    Y
 		dh_slice = 2;
 
-		/*
-		 * if it's TV-Out/MDP_YCRYCB_H2V1, let's go through the
-		 * preloaded gamma setting of 2.2 when the content is
-		 * non-linear ppp_lookUp_enable = TRUE;
-		 */
+		// if it's TV-Out/MDP_YCRYCB_H2V1, let's go through the preloaded
+		// gamma setting of 2.2 when the content is non-linear
+		// ppp_lookUp_enable = TRUE;
 
-		/* x and width must be even number */
+		// x and width must be even number
 		iBuf->roi.lcd_x = (iBuf->roi.lcd_x / 2) * 2;
 		iBuf->roi.dst_width = (iBuf->roi.dst_width / 2) * 2;
 		iBuf->roi.x = (iBuf->roi.x / 2) * 2;
@@ -775,10 +710,10 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 		ppp_operation_reg |= PPP_OP_DST_CHROMA_H2V1;
 		outputRGB = FALSE;
 		pseudoplanr_output = TRUE;
-		/* horizontally (x direction) sample reduction by 2 */
+		// horizontally (x direction) sample reduction by 2
 		dh_slice = 2;
 
-		/* x and width must be even number */
+		// x and width must be even number
 		iBuf->roi.lcd_x = (iBuf->roi.lcd_x / 2) * 2;
 		iBuf->roi.dst_width = (iBuf->roi.dst_width / 2) * 2;
 		iBuf->roi.x = (iBuf->roi.x / 2) * 2;
@@ -806,20 +741,15 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 		break;
 	}
 
-	/* source config */
+	////////////////////////////////
+	// source config
+	////////////////////////////////
 	switch (iBuf->mdpImg.imgType) {
 	case MDP_RGB_888:
 		inpBpp = 3;
-		/*
-		 * 565 = 2bytes
-		 * RGB = 3Components
-		 * RGB interleaved
-		 */
-		ppp_src_cfg_reg = PPP_SRC_C2R_8BITS | PPP_SRC_C0G_8BITS |
-			PPP_SRC_C1B_8BITS | PPP_SRC_BPP_INTERLVD_3BYTES |
-			PPP_SRC_INTERLVD_3COMPONENTS | PPP_SRC_UNPACK_TIGHT |
-			PPP_SRC_UNPACK_ALIGN_LSB |
-			PPP_SRC_FETCH_PLANES_INTERLVD;
+		ppp_src_cfg_reg = PPP_SRC_C2R_8BITS | PPP_SRC_C0G_8BITS | PPP_SRC_C1B_8BITS | PPP_SRC_BPP_INTERLVD_3BYTES |	//565 = 2bytes
+		    PPP_SRC_INTERLVD_3COMPONENTS |	//RGB = 3Components
+		    PPP_SRC_UNPACK_TIGHT | PPP_SRC_UNPACK_ALIGN_LSB | PPP_SRC_FETCH_PLANES_INTERLVD;	//RGB interleaved
 
 		packPattern = MDP_GET_PACK_PATTERN(0, CLR_R, CLR_G, CLR_B, 8);
 
@@ -832,32 +762,18 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 	case MDP_ARGB_8888:
 		perPixelAlpha = TRUE;
 	case MDP_XRGB_8888:
-	case MDP_RGBX_8888:
 		inpBpp = 4;
-		/*
-		 * 8888 = 4bytes
-		 * ARGB = 4Components
-		 * ARGB interleaved
-		 */
-		ppp_src_cfg_reg = PPP_SRC_C2R_8BITS | PPP_SRC_C0G_8BITS |
-			PPP_SRC_C1B_8BITS | PPP_SRC_C3A_8BITS |
-			PPP_SRC_C3_ALPHA_EN | PPP_SRC_BPP_INTERLVD_4BYTES |
-			PPP_SRC_INTERLVD_4COMPONENTS | PPP_SRC_UNPACK_TIGHT |
-			PPP_SRC_UNPACK_ALIGN_LSB |
-			PPP_SRC_FETCH_PLANES_INTERLVD;
+		ppp_src_cfg_reg = PPP_SRC_C2R_8BITS | PPP_SRC_C0G_8BITS | PPP_SRC_C1B_8BITS | PPP_SRC_C3A_8BITS | PPP_SRC_C3_ALPHA_EN | PPP_SRC_BPP_INTERLVD_4BYTES |	//8888 = 4bytes
+		    PPP_SRC_INTERLVD_4COMPONENTS |	//ARGB = 4Components
+		    PPP_SRC_UNPACK_TIGHT | PPP_SRC_UNPACK_ALIGN_LSB | PPP_SRC_FETCH_PLANES_INTERLVD;	//ARGB interleaved
 
 		if (iBuf->mdpImg.imgType == MDP_BGRA_8888)
 			packPattern =
 			    MDP_GET_PACK_PATTERN(CLR_ALPHA, CLR_R, CLR_G, CLR_B,
 						 8);
-		else if (iBuf->mdpImg.imgType == MDP_RGBA_8888 ||
-				 iBuf->mdpImg.imgType == MDP_RGBX_8888)
+		else if (iBuf->mdpImg.imgType == MDP_RGBA_8888)
 			packPattern =
 			    MDP_GET_PACK_PATTERN(CLR_ALPHA, CLR_B, CLR_G, CLR_R,
-						 8);
-		else if (iBuf->ibuf_type == MDP_XRGB_8888)
-			packPattern =
-			    MDP_GET_PACK_PATTERN(CLR_ALPHA, CLR_R, CLR_G, CLR_B,
 						 8);
 		else
 			packPattern =
@@ -873,16 +789,9 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 		inpBpp = 1;
 		src1 = (uint8 *) iBuf->mdpImg.cbcr_addr;
 
-		/*
-		 * CbCr = 2bytes
-		 * CbCr = 2Components
-		 * Y+CbCr
-		 */
-		ppp_src_cfg_reg = PPP_SRC_C2R_8BITS | PPP_SRC_C0G_8BITS |
-			PPP_SRC_C1B_8BITS | PPP_SRC_BPP_INTERLVD_2BYTES |
-			PPP_SRC_INTERLVD_2COMPONENTS | PPP_SRC_UNPACK_TIGHT |
-			PPP_SRC_UNPACK_ALIGN_LSB |
-			PPP_SRC_FETCH_PLANES_PSEUDOPLNR;
+		ppp_src_cfg_reg = PPP_SRC_C2R_8BITS | PPP_SRC_C0G_8BITS | PPP_SRC_C1B_8BITS | PPP_SRC_BPP_INTERLVD_2BYTES |	//CbCr = 2bytes
+		    PPP_SRC_INTERLVD_2COMPONENTS |	//CbCr = 2Components
+		    PPP_SRC_UNPACK_TIGHT | PPP_SRC_UNPACK_ALIGN_LSB | PPP_SRC_FETCH_PLANES_PSEUDOPLNR;	//Y+CbCr
 
 		if (iBuf->mdpImg.imgType == MDP_Y_CRCB_H2V2)
 			packPattern =
@@ -916,14 +825,12 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 		ppp_operation_reg |= PPP_OP_SRC_CHROMA_H2V1 |
 		    PPP_OP_SRC_CHROMA_COSITE | PPP_OP_DST_CHROMA_COSITE;
 
-		/*
-		 * if it's TV-Out/MDP_YCRYCB_H2V1, let's go through the
-		 * preloaded inverse gamma setting of 2.2 since they're
-		 * symetric when the content is non-linear
-		 * ppp_lookUp_enable = TRUE;
-		 */
+		// if it's TV-Out/MDP_YCRYCB_H2V1, let's go through the preloaded
+		// inverse gamma setting of 2.2 since they're symetric when the content
+		// is non-linear
+		// ppp_lookUp_enable = TRUE;
 
-		/* x and width must be even number */
+		// x and width must be even number
 		iBuf->roi.lcd_x = (iBuf->roi.lcd_x / 2) * 2;
 		iBuf->roi.dst_width = (iBuf->roi.dst_width / 2) * 2;
 		iBuf->roi.x = (iBuf->roi.x / 2) * 2;
@@ -964,16 +871,9 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 	case MDP_RGB_565:
 	default:
 		inpBpp = 2;
-		/*
-		 * 565 = 2bytes
-		 * RGB = 3Components
-		 * RGB interleaved
-		 */
-		ppp_src_cfg_reg = PPP_SRC_C2R_5BITS | PPP_SRC_C0G_6BITS |
-			PPP_SRC_C1B_5BITS | PPP_SRC_BPP_INTERLVD_2BYTES |
-			PPP_SRC_INTERLVD_3COMPONENTS | PPP_SRC_UNPACK_TIGHT |
-			PPP_SRC_UNPACK_ALIGN_LSB |
-			PPP_SRC_FETCH_PLANES_INTERLVD;
+		ppp_src_cfg_reg = PPP_SRC_C2R_5BITS | PPP_SRC_C0G_6BITS | PPP_SRC_C1B_5BITS | PPP_SRC_BPP_INTERLVD_2BYTES |	//565 = 2bytes
+		    PPP_SRC_INTERLVD_3COMPONENTS |	//RGB = 3Components
+		    PPP_SRC_UNPACK_TIGHT | PPP_SRC_UNPACK_ALIGN_LSB | PPP_SRC_FETCH_PLANES_INTERLVD;	//RGB interleaved
 
 		if (iBuf->mdpImg.imgType == MDP_RGB_565)
 			packPattern =
@@ -991,16 +891,16 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 	if (pseudoplanr_output)
 		ppp_dst_cfg_reg |= PPP_DST_PLANE_PSEUDOPLN;
 
-	/* YCbCr to RGB color conversion flag */
+	// YCbCr to RGB color conversion flag
 	if ((!inputRGB) && (outputRGB)) {
 		ppp_operation_reg |= PPP_OP_CONVERT_YCBCR2RGB |
 		    PPP_OP_CONVERT_ON;
 
 		/*
-		 * primary/secondary is sort of misleading term...but
-		 * in mdp2.2/3.0 we only use primary matrix (forward/rev)
-		 * in mdp3.1 we use set1(prim) and set2(secd)
-		 */
+		 primary/secondary is sort of misleading term...but
+		 in mdp2.2/3.0 we only use primary matrix (forward/rev)
+		 in mdp3.1 we use set1(prim) and set2(secd)
+		*/
 #ifdef CONFIG_FB_MSM_MDP31
 		ppp_operation_reg |= PPP_OP_CONVERT_MATRIX_SECONDARY |
 					PPP_OP_DST_RGB;
@@ -1012,7 +912,7 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 			    PPP_OP_LUT_C1_ON | PPP_OP_LUT_C2_ON;
 		}
 	}
-	/* RGB to YCbCr color conversion flag */
+	// RGB to YCbCr color conversion flag
 	if ((inputRGB) && (!outputRGB)) {
 		ppp_operation_reg |= PPP_OP_CONVERT_RGB2YCBCR |
 		    PPP_OP_CONVERT_ON;
@@ -1028,7 +928,7 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 			    PPP_OP_LUT_C1_ON | PPP_OP_LUT_C2_ON;
 		}
 	}
-	/* YCbCr to YCbCr color conversion flag */
+	// YCbCr to YCbCr color conversion flag
 	if ((!inputRGB) && (!outputRGB)) {
 		if ((ppp_lookUp_enable) &&
 		    (iBuf->mdpImg.imgType != iBuf->ibuf_type)) {
@@ -1042,7 +942,7 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 	if (req->flags & MDP_DEINTERLACE)
 		ppp_operation_reg |= PPP_OP_DEINT_EN;
 
-	/* Dither at DMA side only since iBuf format is RGB888 */
+	// Dither at DMA side only since iBuf format is RGB888
 	if (iBuf->mdpImg.mdpOp & MDPOP_DITHER)
 		ppp_operation_reg |= PPP_OP_DITHER_EN;
 
@@ -1059,21 +959,21 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 			ppp_operation_reg |= PPP_OP_FLIP_UD;
 		}
 	}
-
+	//////////////////////////////////////////////////
 	src0_ystride = src_width * inpBpp;
 	dest0_ystride = iBuf->ibuf_width * iBuf->bpp;
 
-	/* no need to care about rotation since it's the real-XY. */
+	// no need to care about rotation since it's the real-XY.
 	dst_roi_width = iBuf->roi.dst_width;
 	dst_roi_height = iBuf->roi.dst_height;
 
 	src0 = (uint8 *) iBuf->mdpImg.bmy_addr;
 	dest0 = (uint8 *) iBuf->buf;
 
-	/* Jumping from Y-Plane to Chroma Plane */
+	//Jumping from Y-Plane to Chroma Plane
 	dest1 = mdp_get_chroma_addr(iBuf);
 
-	/* first pixel addr calculation */
+	// first pixel addr calculation
 	mdp_adjust_start_addr(&src0, &src1, sv_slice, sh_slice, iBuf->roi.x,
 			      iBuf->roi.y, src_width, src_height, inpBpp, iBuf,
 			      0);
@@ -1082,13 +982,13 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 			      iBuf->ibuf_width, iBuf->ibuf_height, iBuf->bpp,
 			      iBuf, 2);
 
-	/* set scale operation */
+	// set scale operation
 	mdp_set_scale(iBuf, dst_roi_width, dst_roi_height,
 		      inputRGB, outputRGB, &ppp_operation_reg);
 
-	/*
-	 * setting background source for blending
-	 */
+	//
+	// setting background source for blending
+	//
 	mdp_set_blend_attr(iBuf, &alpha, &tpVal, perPixelAlpha,
 			   &ppp_operation_reg);
 
@@ -1107,44 +1007,42 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 		}
 	}
 
-	/*
-	 * 0x0004: enable dbg bus
-	 * 0x0100: "don't care" Edge Condit until scaling is on
-	 * 0x0104: xrc tile x&y size u7.6 format = 7bit.6bit
-	 * 0x0108: src pixel size
-	 * 0x010c: component plane 0 starting address
-	 * 0x011c: component plane 0 ystride
-	 * 0x0124: PPP source config register
-	 * 0x0128: unpacked pattern from lsb to msb (eg. RGB->BGR)
-	 */
+	/*---------------------------------------------------------
+	// 0x0004: enable dbg bus
+	// 0x0100: "don't care" Edge Condit until scaling is on
+	// 0x0104: xrc tile x&y size u7.6 format = 7bit.6bit
+	// 0x0108: src pixel size
+	// 0x010c: component plane 0 starting address
+	// 0x011c: component plane 0 ystride
+	// 0x0124: PPP source config register
+	// 0x0128: unpacked pattern from lsb to msb (eg. RGB->BGR)
+	/---------------------------------------------------------*/
 	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x0108, (iBuf->roi.height << 16 |
 						      iBuf->roi.width));
-	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x010c, src0); /* comp.plane 0 */
-	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x0110, src1); /* comp.plane 1 */
+	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x010c, src0);	//comp.plane 0
+	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x0110, src1);	//comp.plane 1
 	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x011c,
 		 (src0_ystride << 16 | src0_ystride));
 
-	/* setup for rgb 565 */
-	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x0124, ppp_src_cfg_reg);
+	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x0124, ppp_src_cfg_reg);	//setup for rgb 565
 	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x0128, packPattern);
-	/*
-	 * 0x0138: PPP destination operation register
-	 * 0x014c: constant_alpha|transparent_color
-	 * 0x0150: PPP destination config register
-	 * 0x0154: PPP packing pattern
-	 */
+	/*---------------------------------------------------------
+	// 0x0138: PPP destination operation register
+	// 0x014c: constant_alpha|transparent_color
+	// 0x0150: PPP destination config register
+	// 0x0154: PPP packing pattern
+	/---------------------------------------------------------*/
 	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x0138, ppp_operation_reg);
-	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x014c, alpha << 24 | (tpVal &
-								0xffffff));
+	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x014c, alpha << 24 | tpVal);
 	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x0150, ppp_dst_cfg_reg);
 	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x0154, dst_packPattern);
 
-	/*
-	 * 0x0164: ROI height and width
-	 * 0x0168: Component Plane 0 starting addr
-	 * 0x016c: Component Plane 1 starting addr
-	 * 0x0178: Component Plane 1/0 y stride
-	 */
+	/*---------------------------------------------------------
+	// 0x0164: ROI height and width
+	// 0x0168: Component Plane 0 starting addr
+	// 0x016c: Component Plane 1 starting addr
+	// 0x0178: Component Plane 1/0 y stride
+	/---------------------------------------------------------*/
 	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x0164,
 		 (dst_roi_height << 16 | dst_roi_width));
 	MDP_OUTP(MDP_CMD_DEBUG_ACCESS_BASE + 0x0168, dest0);
@@ -1153,11 +1051,12 @@ struct mdp_blit_req *req, struct file *p_src_file, struct file *p_dst_file)
 		 (dest0_ystride << 16 | dest0_ystride));
 
 	flush_imgs(req, inpBpp, iBuf->bpp, p_src_file, p_dst_file);
-#ifdef	CONFIG_FB_MSM_MDP31
-	MDP_OUTP(MDP_BASE + 0x00100, 0xFF00);
-#endif
 	mdp_pipe_kickoff(MDP_PPP_TERM, mfd);
 }
+
+#define MDP_IS_IMGTYPE_BAD(x) (((x) >= MDP_IMGTYPE_LIMIT) && \
+				(((x) < MDP_IMGTYPE2_START) || \
+				 ((x) >= MDP_IMGTYPE_LIMIT2)))
 
 static int mdp_ppp_verify_req(struct mdp_blit_req *req)
 {
@@ -1185,9 +1084,9 @@ static int mdp_ppp_verify_req(struct mdp_blit_req *req)
 	    ((req->dst_rect.y + req->dst_rect.h) > req->dst.height))
 		return -1;
 
-	/*
-	 * scaling range check
-	 */
+	///////////////////////////////////////
+	// scaling range check
+	///////////////////////////////////////
 	src_width = req->src_rect.w;
 	src_height = req->src_rect.h;
 
@@ -1234,24 +1133,12 @@ static int mdp_ppp_verify_req(struct mdp_blit_req *req)
 	return 0;
 }
 
-int get_gem_img(struct mdp_img *img, unsigned long *start, unsigned long *len)
-{
-	/* Set len to zero to appropriately error out if
-	   kgsl_gem_obj_addr fails */
-
-	*len = 0;
-	return kgsl_gem_obj_addr(img->memory_id, (int) img->priv, start, len);
-}
-
 int get_img(struct mdp_img *img, struct fb_info *info, unsigned long *start,
 	    unsigned long *len, struct file **pp_file)
 {
 	int put_needed, ret = 0;
 	struct file *file;
-#ifdef CONFIG_ANDROID_PMEM
 	unsigned long vstart;
-#endif
-
 #ifdef CONFIG_ANDROID_PMEM
 	if (!get_pmem_file(img->memory_id, start, &vstart, len, pp_file))
 		return 0;
@@ -1271,17 +1158,8 @@ int get_img(struct mdp_img *img, struct fb_info *info, unsigned long *start,
 	return ret;
 }
 
-
-void put_img(struct file *p_src_file)
-{
-#ifdef CONFIG_ANDROID_PMEM
-	if (p_src_file)
-		put_pmem_file(p_src_file);
-#endif
-}
-
-
-int mdp_ppp_blit(struct fb_info *info, struct mdp_blit_req *req)
+int mdp_ppp_blit(struct fb_info *info, struct mdp_blit_req *req,
+	struct file **pp_src_file, struct file **pp_dst_file)
 {
 	unsigned long src_start, dst_start;
 	unsigned long src_len = 0;
@@ -1295,29 +1173,22 @@ int mdp_ppp_blit(struct fb_info *info, struct mdp_blit_req *req)
 		req->dst.format =  mfd->fb_imgType;
 	if (req->src.format == MDP_FB_FORMAT)
 		req->src.format = mfd->fb_imgType;
-	if (req->flags & MDP_BLIT_SRC_GEM)
-		get_gem_img(&req->src, &src_start, &src_len);
-	else
-		get_img(&req->src, info, &src_start, &src_len, &p_src_file);
+	get_img(&req->src, info, &src_start, &src_len, &p_src_file);
 	if (src_len == 0) {
 		printk(KERN_ERR "mdp_ppp: could not retrieve image from "
 		       "memory\n");
 		return -1;
 	}
-	if (req->flags & MDP_BLIT_DST_GEM)
-		get_gem_img(&req->dst, &dst_start, &dst_len);
-	else
-		get_img(&req->dst, info, &dst_start, &dst_len, &p_dst_file);
+	get_img(&req->dst, info, &dst_start, &dst_len, &p_dst_file);
 	if (dst_len == 0) {
-		put_img(p_src_file);
 		printk(KERN_ERR "mdp_ppp: could not retrieve image from "
 		       "memory\n");
 		return -1;
 	}
+	*pp_src_file = p_src_file;
+	*pp_dst_file = p_dst_file;
 	if (mdp_ppp_verify_req(req)) {
 		printk(KERN_ERR "mdp_ppp: invalid image!\n");
-		put_img(p_src_file);
-		put_img(p_dst_file);
 		return -1;
 	}
 
@@ -1349,24 +1220,19 @@ int mdp_ppp_blit(struct fb_info *info, struct mdp_blit_req *req)
 
 	iBuf.mdpImg.mdpOp = MDPOP_NOP;
 
-	/* blending check */
+	// blending check
 	if (req->transp_mask != MDP_TRANSP_NOP) {
 		iBuf.mdpImg.mdpOp |= MDPOP_TRANSP;
 		iBuf.mdpImg.tpVal = req->transp_mask;
 		iBuf.mdpImg.tpVal = mdp_calc_tpval(&iBuf.mdpImg);
-	} else {
-		iBuf.mdpImg.tpVal = 0;
 	}
 
 	req->alpha &= 0xff;
 	if (req->alpha < MDP_ALPHA_NOP) {
 		iBuf.mdpImg.mdpOp |= MDPOP_ALPHAB;
 		iBuf.mdpImg.alpha = req->alpha;
-	} else {
-		iBuf.mdpImg.alpha = 0xff;
 	}
-
-	/* rotation check */
+	// rotation check
 	if (req->flags & MDP_FLIP_LR)
 		iBuf.mdpImg.mdpOp |= MDPOP_LR;
 	if (req->flags & MDP_FLIP_UD)
@@ -1376,30 +1242,15 @@ int mdp_ppp_blit(struct fb_info *info, struct mdp_blit_req *req)
 	if (req->flags & MDP_DITHER)
 		iBuf.mdpImg.mdpOp |= MDPOP_DITHER;
 
-	if (req->flags & MDP_BLEND_FG_PREMULT) {
-#ifdef CONFIG_FB_MSM_MDP31
-		iBuf.mdpImg.mdpOp |= MDPOP_FG_PM_ALPHA;
-#else
-		put_img(p_src_file);
-		put_img(p_dst_file);
-		return -EINVAL;
-#endif
-	}
-
 	if (req->flags & MDP_DEINTERLACE) {
 #ifdef CONFIG_FB_MSM_MDP31
 		if ((req->src.format != MDP_Y_CBCR_H2V2) &&
-			(req->src.format != MDP_Y_CRCB_H2V2)) {
+			(req->src.format != MDP_Y_CRCB_H2V2))
 #endif
-			put_img(p_src_file);
-			put_img(p_dst_file);
-			return -EINVAL;
-#ifdef CONFIG_FB_MSM_MDP31
-		}
-#endif
+		return -EINVAL;
 	}
 
-	/* scale check */
+	// scale check
 	if (req->flags & MDP_ROT_90) {
 		dst_width = req->dst_rect.h;
 		dst_height = req->dst_rect.w;
@@ -1411,19 +1262,6 @@ int mdp_ppp_blit(struct fb_info *info, struct mdp_blit_req *req)
 	if ((iBuf.roi.width != dst_width) || (iBuf.roi.height != dst_height))
 		iBuf.mdpImg.mdpOp |= MDPOP_ASCALE;
 
-	if (req->flags & MDP_BLUR) {
-#ifdef CONFIG_FB_MSM_MDP31
-		if (req->flags & MDP_SHARPENING)
-			printk(KERN_WARNING
-				"mdp: MDP_SHARPENING is set with MDP_BLUR!\n");
-		req->flags |= MDP_SHARPENING;
-		req->sharpening_strength = -127;
-#else
-		iBuf.mdpImg.mdpOp |= MDPOP_ASCALE | MDPOP_BLUR;
-
-#endif
-	}
-
 	if (req->flags & MDP_SHARPENING) {
 #ifdef CONFIG_FB_MSM_MDP31
 		if ((req->sharpening_strength > 127) ||
@@ -1431,46 +1269,41 @@ int mdp_ppp_blit(struct fb_info *info, struct mdp_blit_req *req)
 			printk(KERN_ERR
 				"%s: sharpening strength out of range\n",
 				__func__);
-			put_img(p_src_file);
-			put_img(p_dst_file);
 			return -EINVAL;
 		}
 
 		iBuf.mdpImg.mdpOp |= MDPOP_ASCALE | MDPOP_SHARPENING;
 		iBuf.mdpImg.sp_value = req->sharpening_strength & 0xff;
 #else
-		put_img(p_src_file);
-		put_img(p_dst_file);
 		return -EINVAL;
 #endif
 	}
 
 	down(&mdp_ppp_mutex);
-	/* MDP cmd block enable */
+	// MDP cmd block enable
 	mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_ON, FALSE);
 
 #ifdef CONFIG_FB_MSM_MDP31
 	mdp_start_ppp(mfd, &iBuf, req, p_src_file, p_dst_file);
 #else
-	/* bg tile fetching HW workaround */
+	// bg tile fetching HW workaround
 	if (((iBuf.mdpImg.mdpOp & (MDPOP_TRANSP | MDPOP_ALPHAB)) ||
 	     (req->src.format == MDP_ARGB_8888) ||
 	     (req->src.format == MDP_BGRA_8888) ||
 	     (req->src.format == MDP_RGBA_8888)) &&
 	    (iBuf.mdpImg.mdpOp & MDPOP_ROT90) && (req->dst_rect.w <= 16)) {
 		int dst_h, src_w, i;
-		uint32 mdpOp = iBuf.mdpImg.mdpOp;
 
 		src_w = req->src_rect.w;
 		dst_h = iBuf.roi.dst_height;
 
 		for (i = 0; i < (req->dst_rect.h / 16); i++) {
-			/* this tile size */
+			// this tile size
 			iBuf.roi.dst_height = 16;
 			iBuf.roi.width =
 			    (16 * req->src_rect.w) / req->dst_rect.h;
 
-			/* if it's out of scale range... */
+			// if it's out of scale range...
 			if (((MDP_SCALE_Q_FACTOR * iBuf.roi.dst_height) /
 			     iBuf.roi.width) > MDP_MAX_X_SCALE_FACTOR)
 				iBuf.roi.width =
@@ -1484,15 +1317,13 @@ int mdp_ppp_blit(struct fb_info *info, struct mdp_blit_req *req)
 
 			mdp_start_ppp(mfd, &iBuf, req, p_src_file, p_dst_file);
 
-			/* next tile location */
+			// next tile location
 			iBuf.roi.lcd_y += 16;
 			iBuf.roi.x += iBuf.roi.width;
 
-			/* this is for a remainder update */
+			// this is for a remainder update
 			dst_h -= 16;
 			src_w -= iBuf.roi.width;
-			/* restore mdpOp since MDPOP_ASCALE have been cleared */
-			iBuf.mdpImg.mdpOp = mdpOp;
 		}
 
 		if ((dst_h < 0) || (src_w < 0))
@@ -1500,7 +1331,7 @@ int mdp_ppp_blit(struct fb_info *info, struct mdp_blit_req *req)
 			    ("msm_fb: mdp_blt_ex() unexpected result! line:%d\n",
 			     __LINE__);
 
-		/* remainder update */
+		// remainder update
 		if ((dst_h > 0) && (src_w > 0)) {
 			u32 tmp_v;
 
@@ -1515,7 +1346,7 @@ int mdp_ppp_blit(struct fb_info *info, struct mdp_blit_req *req)
 				    (MDP_SCALE_Q_FACTOR * iBuf.roi.dst_height) %
 				    MDP_MAX_X_SCALE_FACTOR ? 1 : 0;
 
-				/* move x location as roi width gets bigger */
+				// move x location as roi width gets bigger
 				iBuf.roi.x -= tmp_v - iBuf.roi.width;
 				iBuf.roi.width = tmp_v;
 			} else
@@ -1527,10 +1358,7 @@ int mdp_ppp_blit(struct fb_info *info, struct mdp_blit_req *req)
 				    (MDP_SCALE_Q_FACTOR * iBuf.roi.dst_height) %
 				    MDP_MIN_X_SCALE_FACTOR ? 1 : 0;
 
-				/*
-				 * we don't move x location for continuity of
-				 * source image
-				 */
+				// we don't move x location for continuity of source image
 				iBuf.roi.width = tmp_v;
 			}
 
@@ -1541,11 +1369,9 @@ int mdp_ppp_blit(struct fb_info *info, struct mdp_blit_req *req)
 	}
 #endif
 
-	/* MDP cmd block disable */
+	// MDP cmd block disable
 	mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_OFF, FALSE);
 	up(&mdp_ppp_mutex);
 
-	put_img(p_src_file);
-	put_img(p_dst_file);
 	return 0;
 }

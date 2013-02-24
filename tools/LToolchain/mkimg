@@ -7,16 +7,21 @@ echo "Removing old modules from Ramdisk tree"
 rm -fr /home/ka/build/ramdisk/kappa-ramdisk/system/lib/*
 
 echo "Copying Kernel drivers into Ramdisk (/system/lib)"
-find . -name *.ko | xargs -i cp {} /home/ka/build/ramdisk/kappa-ramdisk/system/lib/ 
+find . -name *.ko | grep -v compat-wireless-wl12xx 
+find . -name *.ko | grep -v compat-wireless-wl12xx | xargs -i cp {} /home/ka/build/ramdisk/kappa-ramdisk/system/lib/ 
 
 echo "Copying Wifi drivers into Ramdisk (/system/lib/modules)"
 cd /home/ka/build/Kappa/compat-wireless-wl12xx/
-
+find . -name wl12xx*.ko
 find . -name wl12xx*.ko | xargs -i cp {} /home/ka/build/ramdisk/kappa-ramdisk/rek/modules/
 
+echo "./compat/compat_firmware_class.ko"
 cp ./compat/compat_firmware_class.ko /home/ka/build/ramdisk/kappa-ramdisk/rek/modules/
+echo "./compat/compat.ko"
 cp ./compat/compat.ko /home/ka/build/ramdisk/kappa-ramdisk/rek/modules/
+echo "./net/wireless/cfg80211.ko"
 cp ./net/wireless/cfg80211.ko /home/ka/build/ramdisk/kappa-ramdisk/rek/modules/
+echo "./net/mac80211/mac80211.ko"
 cp ./net/mac80211/mac80211.ko /home/ka/build/ramdisk/kappa-ramdisk/rek/modules/
 
 cd /home/ka/build/ramdisk/kappa-ramdisk 

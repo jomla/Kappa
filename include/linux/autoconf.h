@@ -1,7 +1,7 @@
 /*
  * Automatically generated C config: don't edit
  * Linux kernel version: 2.6.32.9
- * Sat Feb 23 10:13:16 2013
+ * Sun Feb 24 15:04:38 2013
  */
 #define AUTOCONF_INCLUDED
 #define CONFIG_VIDEO_V4L1_COMPAT 1
@@ -137,7 +137,6 @@
 #define CONFIG_NF_NAT_SIP 1
 #define CONFIG_NETFILTER_NETLINK 1
 #define CONFIG_RADIO_ADAPTERS 1
-#define CONFIG_CPU_FREQ_GOV_LULZACTIVE 1
 #define CONFIG_ZBOOT_ROM_BSS 0x0
 #define CONFIG_SUSPEND 1
 #define CONFIG_INOTIFY 1

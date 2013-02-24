@@ -1,4 +1,6 @@
+#!/bin/bash
+
 cd /home/ka/build/Kappa
-ARCH=arm CROSS_COMPILE=/home/ka/build/toolchains/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-  make clean
-ARCH=arm CROSS_COMPILE=/home/ka/build/toolchains/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-  make ka_mango_defconfig
+ARCH=arm CROSS_COMPILE=/home/ka/build/linaro/android-toolchain-eabi/bin/arm-eabi-  make clean
+ARCH=arm CROSS_COMPILE=/home/ka/build/linaro/android-toolchain-eabi/bin/arm-eabi-  make ka_mango_defconfig
 
