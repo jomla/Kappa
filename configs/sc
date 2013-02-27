@@ -1,0 +1,66 @@
+--- ka_coconut_defconfig	2013-02-26 14:04:54.000000000 +0100
++++ ka_mango_defconfig	2013-02-26 17:29:29.000000000 +0100
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+ # Linux kernel version: 2.6.32.9
+-# Mon Feb 25 11:18:25 2013
++# Tue Feb 26 17:24:27 2013
+ #
+ CONFIG_ARM=y
+ CONFIG_SYS_SUPPORTS_APM_EMULATION=y
+@@ -339,7 +339,7 @@
+ # CONFIG_SEMC_MOGAMI_FELICA_SUPPORT is not set
+ # CONFIG_SEMC_MOGAMI_IRDA is not set
+ # CONFIG_MOGAMI_PMIC_KEYPAD is not set
+-# CONFIG_SEMC_BATTERY_SHOW_HEALTH is not set
++CONFIG_SEMC_BATTERY_SHOW_HEALTH=y
+ # CONFIG_MMC_MSM_SDC4_LOW_DRIVE_STRENGTH is not set
+ 
+ #
+@@ -1064,13 +1064,13 @@
+ #
+ # SCSI support type (disk, tape, CD-ROM)
+ #
+-# CONFIG_BLK_DEV_SD is not set
++CONFIG_BLK_DEV_SD=y
+ # CONFIG_CHR_DEV_ST is not set
+ # CONFIG_CHR_DEV_OSST is not set
+ # CONFIG_BLK_DEV_SR is not set
+ CONFIG_CHR_DEV_SG=y
+ # CONFIG_CHR_DEV_SCH is not set
+-# CONFIG_SCSI_MULTI_LUN is not set
++CONFIG_SCSI_MULTI_LUN=y
+ # CONFIG_SCSI_CONSTANTS is not set
+ # CONFIG_SCSI_LOGGING is not set
+ # CONFIG_SCSI_SCAN_ASYNC is not set
+@@ -1883,7 +1883,7 @@
+ # CONFIG_USB_DYNAMIC_MINORS is not set
+ CONFIG_USB_SUSPEND=y
+ CONFIG_USB_OTG=y
+-CONFIG_USB_OTG_WHITELIST=y
++# CONFIG_USB_OTG_WHITELIST is not set
+ # CONFIG_USB_OTG_BLACKLIST_HUB is not set
+ # CONFIG_USB_MON is not set
+ # CONFIG_USB_WUSB is not set
+@@ -1923,7 +1923,19 @@
+ #
+ # also be needed; see USB_STORAGE Help for more info
+ #
+-# CONFIG_USB_STORAGE is not set
++CONFIG_USB_STORAGE=y
++# CONFIG_USB_STORAGE_DEBUG is not set
++# CONFIG_USB_STORAGE_DATAFAB is not set
++# CONFIG_USB_STORAGE_FREECOM is not set
++# CONFIG_USB_STORAGE_ISD200 is not set
++# CONFIG_USB_STORAGE_USBAT is not set
++# CONFIG_USB_STORAGE_SDDR09 is not set
++# CONFIG_USB_STORAGE_SDDR55 is not set
++# CONFIG_USB_STORAGE_JUMPSHOT is not set
++# CONFIG_USB_STORAGE_ALAUDA is not set
++# CONFIG_USB_STORAGE_ONETOUCH is not set
++# CONFIG_USB_STORAGE_KARMA is not set
++# CONFIG_USB_STORAGE_CYPRESS_ATACB is not set
+ # CONFIG_USB_LIBUSUAL is not set
+ 
+ #
