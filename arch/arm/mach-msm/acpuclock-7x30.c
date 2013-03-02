@@ -56,7 +56,7 @@
 #define MAX_AXI_KHZ 192000
 #define SEMC_ACPU_MIN_UV_MV 750U
 #define SEMC_ACPU_MAX_UV_MV 1525U
-#define OVERCLOCK_CPU_LOW 0 /* set to 0 to enable 2.0 GHz */
+#define OVERCLOCK_CPU_LOW 1 /* set to 0 to enable 2.0 GHz */
 
 struct clock_state {
 	struct clkctl_acpu_speed	*current_speed;
@@ -423,6 +423,7 @@ static void __init lpj_init(void)
 
 void __init msm_acpu_clock_init(struct msm_acpu_clock_platform_data *clkdata)
 {
+	struct clkctl_acpu_speed *s;
 	pr_info("acpu_clock_init()\n");
 
 	mutex_init(&drv_state.lock);
@@ -432,6 +433,12 @@ void __init msm_acpu_clock_init(struct msm_acpu_clock_platform_data *clkdata)
 	lpj_init();
 
 	cpufreq_frequency_table_get_attr(freq_table, smp_processor_id());
+
+	for (s = acpu_freq_tbl; s->acpu_clk_khz != 0; s++) ; 
+	s--; 
+	acpuclk_set_rate(0, s->acpu_clk_khz, SETRATE_CPUFREQ); 
+	pr_info("ACPU init done, clock rate now : %d\n", drv_state.current_speed->acpu_clk_khz);
+
 }
 
 #ifdef CONFIG_CPU_FREQ_VDD_LEVELS
