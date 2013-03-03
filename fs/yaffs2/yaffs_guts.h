@@ -17,6 +17,7 @@
 #define __YAFFS_GUTS_H__
 
 #include "yportenv.h"
+#include "linux/crypto.h"
 
 #define YAFFS_OK	1
 #define YAFFS_FAIL  0
@@ -721,6 +722,9 @@ struct yaffs_dev {
 					allocating block */
 	unsigned oldest_dirty_seq;
 	unsigned oldest_dirty_block;
+
+	struct crypto_blkcipher *cipher;
+	int is_encrypted_fs;
 
 	/* Block refreshing */
 	int refresh_skip;	/* A skip down counter.
