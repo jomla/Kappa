@@ -1,8 +1,8 @@
-/* This file is auto generated, version 3 */
+/* This file is auto generated, version 4 */
 /*  PREEMPT */
 #define UTS_MACHINE "arm"
-#define UTS_VERSION "#3 PREEMPT Fri Mar 1 22:25:17 CET 2013"
-#define LINUX_COMPILE_TIME "22:25:17"
+#define UTS_VERSION "#4 PREEMPT Sun Mar 3 23:12:36 CET 2013"
+#define LINUX_COMPILE_TIME "23:12:36"
 #define LINUX_COMPILE_BY "Ka"
 #define LINUX_COMPILE_HOST "Kappa"
 #define LINUX_COMPILE_DOMAIN "Kappa"

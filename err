@@ -1,0 +1,134 @@
+In file included from arch/arm/mach-msm/cpufreq.c:22:0:
+include/linux/cpufreq.h:393:1: error: unknown type name 'elif'
+include/linux/cpufreq.h:393:6: error: function declaration isn't a prototype [-Werror=strict-prototypes]
+include/linux/cpufreq.h: In function 'defined':
+include/linux/cpufreq.h:394:32: error: storage class specified for parameter 'cpufreq_gov_intellidemand2'
+include/linux/cpufreq.h:395:0: error: "CPUFREQ_DEFAULT_GOVERNOR" redefined [-Werror]
+include/linux/cpufreq.h:392:0: note: this is the location of the previous definition
+include/linux/cpufreq.h:396:1: error: unknown type name 'elif'
+include/linux/cpufreq.h:397:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'extern'
+include/linux/cpufreq.h:398:0: error: "CPUFREQ_DEFAULT_GOVERNOR" redefined [-Werror]
+include/linux/cpufreq.h:395:0: note: this is the location of the previous definition
+include/linux/cpufreq.h:399:1: error: unknown type name 'elif'
+include/linux/cpufreq.h:400:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'extern'
+include/linux/cpufreq.h:401:0: error: "CPUFREQ_DEFAULT_GOVERNOR" redefined [-Werror]
+include/linux/cpufreq.h:398:0: note: this is the location of the previous definition
+include/linux/cpufreq.h:402:1: error: unknown type name 'elif'
+include/linux/cpufreq.h:403:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before 'extern'
+include/linux/cpufreq.h:404:0: error: "CPUFREQ_DEFAULT_GOVERNOR" redefined [-Werror]
+include/linux/cpufreq.h:401:0: note: this is the location of the previous definition
+include/linux/cpufreq.h:418:1: error: empty declaration [-Werror]
+include/linux/cpufreq.h:442:25: error: storage class specified for parameter 'cpufreq_freq_attr_scaling_available_freqs'
+include/linux/cpufreq.h:460:13: error: storage class specified for parameter 'cpufreq_debug_printk'
+In file included from arch/arm/mach-msm/cpufreq.c:26:0:
+arch/arm/mach-msm/acpuclock.h:25:1: error: empty declaration [-Werror]
+In file included from arch/arm/mach-msm/cpufreq.c:27:0:
+arch/arm/mach-msm/cpufreq.h:6:1: error: empty declaration [-Werror]
+arch/arm/mach-msm/cpufreq.h:11:1: error: empty declaration [-Werror]
+arch/arm/mach-msm/cpufreq.c:41:8: error: storage class specified for parameter 'msm_cpufreq_voter_lock'
+arch/arm/mach-msm/cpufreq.c:41:8: error: parameter 'msm_cpufreq_voter_lock' is initialized
+arch/arm/mach-msm/cpufreq.c:42:12: error: storage class specified for parameter 'msm_cpufreq_vote'
+arch/arm/mach-msm/cpufreq.c:42:1: error: parameter 'msm_cpufreq_vote' is initialized
+arch/arm/mach-msm/cpufreq.c:43:8: error: storage class specified for parameter 'msm_cpufreq_voters'
+arch/arm/mach-msm/cpufreq.c:43:8: error: parameter 'msm_cpufreq_voters' is initialized
+arch/arm/mach-msm/cpufreq.c:49:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+arch/arm/mach-msm/cpufreq.c:60:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+arch/arm/mach-msm/cpufreq.c:65:1: error: storage class specified for parameter 'msm_cpufreq_voter_update'
+arch/arm/mach-msm/cpufreq.c:65:1: error: redefinition of parameter 'msm_cpufreq_voter_update'
+In file included from arch/arm/mach-msm/cpufreq.c:27:0:
+arch/arm/mach-msm/cpufreq.h:16:6: note: previous definition of 'msm_cpufreq_voter_update' was here
+arch/arm/mach-msm/cpufreq.c:65:1: error: storage class specified for parameter '__kstrtab_msm_cpufreq_voter_update'
+arch/arm/mach-msm/cpufreq.c:65:1: error: parameter '__kstrtab_msm_cpufreq_voter_update' is initialized
+arch/arm/mach-msm/cpufreq.c:65:1: error: section attribute not allowed for '__kstrtab_msm_cpufreq_voter_update'
+arch/arm/mach-msm/cpufreq.c:65:1: error: alignment may not be specified for '__kstrtab_msm_cpufreq_voter_update'
+arch/arm/mach-msm/cpufreq.c:65:1: error: storage class specified for parameter '__ksymtab_msm_cpufreq_voter_update'
+arch/arm/mach-msm/cpufreq.c:65:1: error: parameter '__ksymtab_msm_cpufreq_voter_update' is initialized
+arch/arm/mach-msm/cpufreq.c:65:1: error: '__used__' attribute ignored [-Werror=attributes]
+arch/arm/mach-msm/cpufreq.c:65:1: error: section attribute not allowed for '__ksymtab_msm_cpufreq_voter_update'
+arch/arm/mach-msm/cpufreq.c:68:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+arch/arm/mach-msm/cpufreq.c:79:1: error: storage class specified for parameter 'msm_cpufreq_register_voter'
+arch/arm/mach-msm/cpufreq.c:79:1: error: redefinition of parameter 'msm_cpufreq_register_voter'
+In file included from arch/arm/mach-msm/cpufreq.c:27:0:
+arch/arm/mach-msm/cpufreq.h:18:5: note: previous definition of 'msm_cpufreq_register_voter' was here
+arch/arm/mach-msm/cpufreq.c:79:1: error: storage class specified for parameter '__kstrtab_msm_cpufreq_register_voter'
+arch/arm/mach-msm/cpufreq.c:79:1: error: parameter '__kstrtab_msm_cpufreq_register_voter' is initialized
+arch/arm/mach-msm/cpufreq.c:79:1: error: section attribute not allowed for '__kstrtab_msm_cpufreq_register_voter'
+arch/arm/mach-msm/cpufreq.c:79:1: error: alignment may not be specified for '__kstrtab_msm_cpufreq_register_voter'
+arch/arm/mach-msm/cpufreq.c:79:1: error: storage class specified for parameter '__ksymtab_msm_cpufreq_register_voter'
+arch/arm/mach-msm/cpufreq.c:79:1: error: parameter '__ksymtab_msm_cpufreq_register_voter' is initialized
+arch/arm/mach-msm/cpufreq.c:79:1: error: '__used__' attribute ignored [-Werror=attributes]
+arch/arm/mach-msm/cpufreq.c:79:1: error: section attribute not allowed for '__ksymtab_msm_cpufreq_register_voter'
+arch/arm/mach-msm/cpufreq.c:82:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+arch/arm/mach-msm/cpufreq.c:91:1: error: storage class specified for parameter 'msm_cpufreq_unregister_voter'
+arch/arm/mach-msm/cpufreq.c:91:1: error: redefinition of parameter 'msm_cpufreq_unregister_voter'
+In file included from arch/arm/mach-msm/cpufreq.c:27:0:
+arch/arm/mach-msm/cpufreq.h:19:6: note: previous definition of 'msm_cpufreq_unregister_voter' was here
+arch/arm/mach-msm/cpufreq.c:91:1: error: storage class specified for parameter '__kstrtab_msm_cpufreq_unregister_voter'
+arch/arm/mach-msm/cpufreq.c:91:1: error: parameter '__kstrtab_msm_cpufreq_unregister_voter' is initialized
+arch/arm/mach-msm/cpufreq.c:91:1: error: section attribute not allowed for '__kstrtab_msm_cpufreq_unregister_voter'
+arch/arm/mach-msm/cpufreq.c:91:1: error: alignment may not be specified for '__kstrtab_msm_cpufreq_unregister_voter'
+arch/arm/mach-msm/cpufreq.c:91:1: error: storage class specified for parameter '__ksymtab_msm_cpufreq_unregister_voter'
+arch/arm/mach-msm/cpufreq.c:91:1: error: parameter '__ksymtab_msm_cpufreq_unregister_voter' is initialized
+arch/arm/mach-msm/cpufreq.c:91:1: error: '__used__' attribute ignored [-Werror=attributes]
+arch/arm/mach-msm/cpufreq.c:91:1: error: section attribute not allowed for '__ksymtab_msm_cpufreq_unregister_voter'
+arch/arm/mach-msm/cpufreq.c:94:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+arch/arm/mach-msm/cpufreq.c:127:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+arch/arm/mach-msm/cpufreq.c:172:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+arch/arm/mach-msm/cpufreq.c:179:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+arch/arm/mach-msm/cpufreq.c:207:30: error: storage class specified for parameter 'msm_cpufreq_driver'
+arch/arm/mach-msm/cpufreq.c:207:15: error: parameter 'msm_cpufreq_driver' is initialized
+arch/arm/mach-msm/cpufreq.c:210:11: error: 'msm_cpufreq_init' undeclared (first use in this function)
+arch/arm/mach-msm/cpufreq.c:210:11: note: each undeclared identifier is reported only once for each function it appears in
+arch/arm/mach-msm/cpufreq.c:211:13: error: 'msm_cpufreq_verify' undeclared (first use in this function)
+arch/arm/mach-msm/cpufreq.c:212:13: error: 'msm_cpufreq_target' undeclared (first use in this function)
+arch/arm/mach-msm/cpufreq.c:218:1: error: expected '=', ',', ';', 'asm' or '__attribute__' before '{' token
+arch/arm/mach-msm/cpufreq.c:222:1: error: storage class specified for parameter '__initcall_msm_cpufreq_register7'
+arch/arm/mach-msm/cpufreq.c:222:1: error: parameter '__initcall_msm_cpufreq_register7' is initialized
+arch/arm/mach-msm/cpufreq.c:222:1: error: '__used__' attribute ignored [-Werror=attributes]
+arch/arm/mach-msm/cpufreq.c:222:1: error: section attribute not allowed for '__initcall_msm_cpufreq_register7'
+arch/arm/mach-msm/cpufreq.c:222:1: error: 'msm_cpufreq_register' undeclared (first use in this function)
+arch/arm/mach-msm/cpufreq.c:222:1: error: declaration for parameter '__initcall_msm_cpufreq_register7' but no such parameter
+arch/arm/mach-msm/cpufreq.c:207:30: error: declaration for parameter 'msm_cpufreq_driver' but no such parameter
+arch/arm/mach-msm/cpufreq.c:91:1: error: declaration for parameter '__ksymtab_msm_cpufreq_unregister_voter' but no such parameter
+arch/arm/mach-msm/cpufreq.c:91:1: error: declaration for parameter '__kstrtab_msm_cpufreq_unregister_voter' but no such parameter
+arch/arm/mach-msm/cpufreq.c:91:1: error: declaration for parameter 'msm_cpufreq_unregister_voter' but no such parameter
+arch/arm/mach-msm/cpufreq.c:79:1: error: declaration for parameter '__ksymtab_msm_cpufreq_register_voter' but no such parameter
+arch/arm/mach-msm/cpufreq.c:79:1: error: declaration for parameter '__kstrtab_msm_cpufreq_register_voter' but no such parameter
+arch/arm/mach-msm/cpufreq.c:79:1: error: declaration for parameter 'msm_cpufreq_register_voter' but no such parameter
+arch/arm/mach-msm/cpufreq.c:65:1: error: declaration for parameter '__ksymtab_msm_cpufreq_voter_update' but no such parameter
+arch/arm/mach-msm/cpufreq.c:65:1: error: declaration for parameter '__kstrtab_msm_cpufreq_voter_update' but no such parameter
+arch/arm/mach-msm/cpufreq.c:65:1: error: declaration for parameter 'msm_cpufreq_voter_update' but no such parameter
+arch/arm/mach-msm/cpufreq.c:43:8: error: declaration for parameter 'msm_cpufreq_voters' but no such parameter
+arch/arm/mach-msm/cpufreq.c:42:12: error: declaration for parameter 'msm_cpufreq_vote' but no such parameter
+arch/arm/mach-msm/cpufreq.c:41:8: error: declaration for parameter 'msm_cpufreq_voter_lock' but no such parameter
+In file included from arch/arm/mach-msm/cpufreq.c:27:0:
+arch/arm/mach-msm/cpufreq.h:19:6: error: declaration for parameter 'msm_cpufreq_unregister_voter' but no such parameter
+arch/arm/mach-msm/cpufreq.h:18:5: error: declaration for parameter 'msm_cpufreq_register_voter' but no such parameter
+arch/arm/mach-msm/cpufreq.h:16:6: error: declaration for parameter 'msm_cpufreq_voter_update' but no such parameter
+In file included from arch/arm/mach-msm/cpufreq.c:26:0:
+arch/arm/mach-msm/acpuclock.h:35:15: error: declaration for parameter 'acpuclk_power_collapse' but no such parameter
+arch/arm/mach-msm/acpuclock.h:34:15: error: declaration for parameter 'acpuclk_wait_for_irq' but no such parameter
+arch/arm/mach-msm/acpuclock.h:33:10: error: declaration for parameter 'acpuclk_get_switch_time' but no such parameter
+arch/arm/mach-msm/acpuclock.h:32:15: error: declaration for parameter 'acpuclk_get_rate' but no such parameter
+arch/arm/mach-msm/acpuclock.h:31:5: error: declaration for parameter 'acpuclk_set_rate' but no such parameter
+In file included from arch/arm/mach-msm/cpufreq.c:22:0:
+include/linux/cpufreq.h:460:13: error: declaration for parameter 'cpufreq_debug_printk' but no such parameter
+include/linux/cpufreq.h:447:6: error: declaration for parameter 'cpufreq_frequency_table_put_attr' but no such parameter
+include/linux/cpufreq.h:444:6: error: declaration for parameter 'cpufreq_frequency_table_get_attr' but no such parameter
+include/linux/cpufreq.h:442:25: error: declaration for parameter 'cpufreq_freq_attr_scaling_available_freqs' but no such parameter
+include/linux/cpufreq.h:439:8: error: declaration for parameter 'cpufreq_cpu_put' but no such parameter
+include/linux/cpufreq.h:438:24: error: declaration for parameter 'cpufreq_cpu_get' but no such parameter
+include/linux/cpufreq.h:437:33: error: declaration for parameter 'cpufreq_frequency_get_table' but no such parameter
+include/linux/cpufreq.h:430:5: error: declaration for parameter 'cpufreq_frequency_table_target' but no such parameter
+include/linux/cpufreq.h:427:5: error: declaration for parameter 'cpufreq_frequency_table_verify' but no such parameter
+include/linux/cpufreq.h:424:5: error: declaration for parameter 'cpufreq_frequency_table_cpuinfo' but no such parameter
+include/linux/cpufreq.h:394:32: error: declaration for parameter 'cpufreq_gov_intellidemand2' but no such parameter
+arch/arm/mach-msm/cpufreq.c:222:1: error: expected '{' at end of input
+cc1: all warnings being treated as errors
+make[1]: *** [arch/arm/mach-msm/cpufreq.o] Error 1
+make: *** [arch/arm/mach-msm] Error 2
+make: *** Waiting for unfinished jobs....
+make: *** wait: No child processes.  Stop.
+1) y
+2) n
+#? 

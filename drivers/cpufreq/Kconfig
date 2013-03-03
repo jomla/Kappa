@@ -202,6 +202,35 @@ config CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND
 	  Use the CPUFreq governor 'intellidemand' as default. This is
 	  based on Ondemand with browsing detection based on GPU loading 
 
+
+config CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND2
+	bool "intellidemand2"
+	select CPU_FREQ_GOV_INTELLIDEMAND2
+	help
+	  Use the CPUFreq governor 'intellidemand2' as default. This is
+	  based on Ondemand with browsing detection based on GPU loading
+
+config CPU_FREQ_DEFAULT_GOV_SMARTASSH3
+	bool "smartassH3"
+	select CPU_FREQ_GOV_SMARTASSH3
+	help
+	Use the CPUFreq governor 'SmartassH3' as default.
+
+
+config CPU_FREQ_DEFAULT_GOV_DARKSIDE
+        bool "darkside"
+        select CPU_FREQ_GOV_DARKSIDE
+        help
+          Use the CPUFreq governor 'darkside' as default.
+
+config CPU_FREQ_DEFAULT_GOV_LIONHEART
+        bool "lionheart"
+        select CPU_FREQ_GOV_LIONHEART
+        help
+        Use the CPUFreq governor 'lionheart' as default.
+
+
+
 endchoice 
 
 config CPU_FREQ_GOV_PERFORMANCE
@@ -385,6 +414,47 @@ config CPU_FREQ_GOV_INTELLIDEMAND
         select CPU_FREQ_TABLE
         help
           'intellidemand' - This driver adds a dynamic cpufreq policy governor.
+          The governor does a periodic polling and
+          changes frequency based on the CPU utilization.
+          The support for this governor depends on CPU capability to
+          do fast frequency switching (i.e, very low latency frequency
+          transitions). with browsing detection based on GPU loading
+
+          To compile this driver as a module, choose M here: the
+          module will be called cpufreq_ondemand.
+
+          For details, take a look at linux/Documentation/cpu-freq.
+
+          If in doubt, say N.
+
+
+config CPU_FREQ_GOV_DARKSIDE
+	tristate "'darkside' cpufreq governor"
+	depends on CPU_FREQ
+	help
+	  'darkside' - a "slightly more agressive smart" optimized governor!
+
+config CPU_FREQ_GOV_LIONHEART
+  	tristate "'lionheart' cpufreq governor"
+  	depends on CPU_FREQ
+	help
+	  'lionheart' - like a "beast" for a lion.
+
+	  If in doubt, say N.
+
+config CPU_FREQ_GOV_SMARTASSH3
+	tristate "'SmartassH3' cpufreq governor"
+	depends on CPU_FREQ
+	help
+	  SmartassH3 - a "smartassV2 with tweaks by H3ROS" governor!
+
+	  If in doubt, say N.
+
+config CPU_FREQ_GOV_INTELLIDEMAND2
+        tristate "'intellidemand2' cpufreq policy governor"
+        select CPU_FREQ_TABLE
+        help
+          'intellidemand2' - This driver adds a dynamic cpufreq policy governor.
           The governor does a periodic polling and
           changes frequency based on the CPU utilization.
           The support for this governor depends on CPU capability to
