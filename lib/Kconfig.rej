@@ -1,0 +1,13 @@
+--- lib/Kconfig
++++ lib/Kconfig
+@@ -119,6 +121,10 @@
+ config DECOMPRESS_LZMA
+ 	tristate
+ 
++config DECOMPRESS_XZ
++	select XZ_DEC
++	tristate
++
+ config DECOMPRESS_LZO
+ 	select LZO_DECOMPRESS
+ 	tristate
