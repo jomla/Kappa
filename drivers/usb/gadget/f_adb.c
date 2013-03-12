@@ -556,7 +556,7 @@ static int adb_bind_config(struct usb_configuration *c)
 {
 	struct adb_dev *dev = _adb_dev;
 
-	printk(KERN_INFO "adb_bind_config\n");
+	printk(KERN_INFO "adb_bind_config - Start\n");
 
 	dev->cdev = c->cdev;
 	dev->function.name = "adb";
@@ -567,6 +567,7 @@ static int adb_bind_config(struct usb_configuration *c)
 	dev->function.set_alt = adb_function_set_alt;
 	dev->function.disable = adb_function_disable;
 
+	printk(KERN_INFO "adb_bind_config - End\n");
 	return usb_add_function(c, &dev->function);
 }
 
