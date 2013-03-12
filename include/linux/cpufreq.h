@@ -390,6 +390,23 @@ extern struct cpufreq_governor cpufreq_gov_lulzactive;
 extern struct cpufreq_governor cpufreq_gov_intellidemand;
 #define CPUFREQ_DEFAULT_GOVERNOR        (&cpufreq_gov_intellidemand)
 
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_LIONHEART)
+extern struct cpufreq_governor cpufreq_gov_lionheart;
+#define CPUFREQ_DEFAULT_GOVERNOR        (&cpufreq_gov_lionheart)
+
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_DARKSIDE)
+extern struct cpufreq_governor cpufreq_gov_darkside;
+#define CPUFREQ_DEFAULT_GOVERNOR        (&cpufreq_gov_darkside)
+
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND2)
+extern struct cpufreq_governor cpufreq_gov_intellidemand2;
+#define CPUFREQ_DEFAULT_GOVERNOR        (&cpufreq_gov_intellidemand2)
+
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SMARTASSH3)
+extern struct cpufreq_governor cpufreq_gov_smartassh3;
+#define CPUFREQ_DEFAULT_GOVERNOR        (&cpufreq_gov_smartassh3)
+
+
 #endif                                                                                                                                        
 
 
