@@ -202,8 +202,7 @@ config CPU_FREQ_DEFAULT_GOV_INTELLIDEMAND
 	  Use the CPUFreq governor 'intellidemand' as default. This is
 	  based on Ondemand with browsing detection based on GPU loading 
 
-
-endchoice
+endchoice 
 
 config CPU_FREQ_GOV_PERFORMANCE
 	tristate "'performance' governor"

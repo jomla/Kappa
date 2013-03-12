@@ -1,0 +1,22 @@
+#!/bin/bash
+
+cd /home/ka/build/Kappa
+ARCH=arm CROSS_COMPILE=/home/ka/build/linaro/android-toolchain-eabi/bin/arm-linux-androideabi-  make menuconfig
+ARCH=arm CROSS_COMPILE=/home/ka/build/linaro/android-toolchain-eabi/bin/arm-linux-androideabi-  make 
+
+echo "Build Modules?" 
+select yn in "y" "n"; do 
+	case $yn in 
+        	y ) ARCH=arm CROSS_COMPILE=/home/ka/build/linaro/android-toolchain-eabi/bin/arm-linux-androideabi-  make modules; break;;
+                n ) exit;; 
+        esac 
+done
+
+echo "Build Wifi Drivers?"                                                                                                                    
+select yn in "y" "n"; do                                                                                                                   
+        case $yn in                                                                                                                           
+                y ) mkwifi; break;;
+                n ) exit;; 
+        esac 
+done    
+
