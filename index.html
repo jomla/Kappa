@@ -31,13 +31,84 @@
         <hr>
 
         <section id="main_content">
-          <p>Home to the Kappa Android Kernel Based on official sources by Sony (4.1.B.1.13) 
-Modded with Governors taken from <a href="https://github.com/DoomLord" class="user-mention">@DoomLord</a> 
-SIO Scheduler by Miguel Boton </p>
+          <p>Home to the <strong>Kappa</strong> Android Kernel Based on official sources by Sony (4.1.B.1.13) </p>
 
-<p>For selection of Governors or IO scheduler make menuconfig to be used. </p>
+<p><strong>The unfortunately mandatory disclaimer:</strong></p>
 
-<p>This kernel is a work in progress. I hereby decline any responsability if you compile it, flash and then find yourself with an expensive paperweight!</p>
+<p>By installing this kernel you agree that I can't be held responsible for anything that happens to you, your belongings, the people you know, the people you don't know, anything that might be closely or remotely related to you. You install the provided software in your phone and you're sole responsible for what may happen. Can't be blamed if your warranty is now void either. Even coffee may taste different afterwards!</p>
+
+<p><strong>What is it?</strong></p>
+
+<p>This is my attempt at bulding a custom kernel for my needs. To be fast, stable and eat as little battery as possible.
+It's mainly "your" kernel, in the sense that it contains contributions/pieces of code / bits of genius by several people, who I wish personally to thank for all they shared. In no particular order:</p>
+
+<ul>
+<li>DooMLoRD</li>
+<li>Faux123</li>
+<li>an0nym0us_</li>
+<li>slade87</li>
+<li>...and many, many others...</li>
+</ul><p><em>(Listing above people doesn't mean they directly contributed to the kernel nor that they endorse it. I took either piece of their work to include or was inspired by their works)</em></p>
+
+<p><strong>What's in it?</strong></p>
+
+<p>This production of KaLabs kitchen is prepared with the finest cutlery available, Linaro GCC 4.7.3.
+I've taken a well fed Sony stock 4.1.B.1.13 and prepared " a la Ka recipe"</p>
+
+<ul>
+<li>Removed unnecessary kernel components (e.g. Ethernet 10/100 drivers) - Lighter is better</li>
+<li>CWM 6.0.1.2 (compiled from sources, press vol down when the purple led is On at boot - depends on phone model)</li>
+<li>CPU Governors (most taken from DooMLoRD sources): brazilianwax, conservative, darkside (New), intellidemand (**Default**), intellidemand2, interactive, interactivex, lagfree, lionheart, minmax, ondemand, performance, powersave, savagedzen, scary, smartass2, smartass, smartassH3, smoothass, userspace</li>
+<li>IO Schedulers: BFQ, CFQ, SIO (**Default**), VR, Zen</li>
+<li>SLQB Memory Allocator</li>
+<li>Added Ext4 support</li>
+<li>Swap, ZRam enabled</li>
+<li>Cleancache and Frontswap are present too</li>
+<li>Google Snappy Compression and Decompression drivers included</li>
+<li>Updated Video drivers with Aurora Project's versions</li>
+<li>Memcopy included</li>
+<li>Tiny RCU is there too</li>
+<li>OC up to 1.7GHZ</li>
+<li>RO.secure = 0</li>
+<li>init.d support</li>
+<li>IP Tunneling</li>
+<li>Wifi modules in Ramdisk (no need to flash anything. Might require a second boot after the first)</li>
+<li>USB OTG Support</li>
+<li>Boot Boost (Boot in OC 1.6GHZ, reduces boot by a few seconds)</li>
+<li>Patched up to 2.6.32.60</li>
+<li>Updated Yaffs2 driver</li>
+<li>Ramdisk compressed with LZMA</li>
+<li>CIFS Module enabling/disabling via KaMenu (*)</li>
+<li>NTFS Module enabling/disabling via KaMenu (*)</li>
+<li>FUSE Module enabling/disabling via KaMenu (*)</li>
+<li>HFS Plus Module enabling/disabling via KaMenu (*) (New)
+This Kernel plays safely with any ROM based on stock ICS.</li>
+</ul><p>(*) KaMenu is new with release 1.3</p>
+
+<p>Either via "adb shell" or a Terminal on the device itself, execute kamenu and follow the onscreen menu to enable or disable CIFS/NTFS/FUSE.
+Once enabled, they are loaded and automatically loaded at boot too (via init.d script). Follow the same procedure to disable them.</p>
+
+<p><strong>Supported models</strong></p>
+
+<p>The aim is to provide with builds for:</p>
+
+<ul>
+<li>Mango - Mini Pro</li>
+<li>Smultron - Mini</li>
+<li>Coconut - LWW</li>
+<li>Satsuma - Active</li>
+</ul><p><strong>Installation</strong></p>
+
+<p>The installation is no different than other custom kernels.</p>
+
+<ul>
+<li>First make sure you have an unlocked bootloader</li>
+<li>When your phone is turned off, press the up vol button and connect your phone to your computer (Fastboot mode)</li>
+<li>You must see the led turning blue</li>
+<li>Either via Flashtool or via command line (fastboot -i 0x0fce flash boot THEKERNEL) flash the kernel to your phone</li>
+<li>You must see "0 bad blocks encountered" in the log. In case you see, it's safe to disconnect and reboot, otherwise redownload the kernel and try flashing again.</li>
+<li>There you go...</li>
+</ul>
         </section>
 
         <footer>
