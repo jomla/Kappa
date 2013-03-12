@@ -2014,8 +2014,14 @@ static int __extent_read_full_page(struct extent_io_tree *tree,
 	unsigned long this_bio_flag = 0;
 
 	set_page_extent_mapped(page);
+        if (!PageUptodate(page)) {  
+	   if (cleancache_get_page(page) == 0) { 
+	      BUG_ON(blocksize != PAGE_SIZE); 
+              goto out; 2035 
+           }
+        }
 
-	end = page_end;
+    	end = page_end;
 	lock_extent(tree, start, end, GFP_NOFS);
 
 	if (page->index == last_byte >> PAGE_CACHE_SHIFT) {
@@ -2131,6 +2137,9 @@ static int __extent_read_full_page(struct extent_io_tree *tree,
 		cur = cur + iosize;
 		page_offset += iosize;
 	}
+
+        out:
+
 	if (!nr) {
 		if (!PageError(page))
 			SetPageUptodate(page);

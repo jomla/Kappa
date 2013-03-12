@@ -163,6 +163,7 @@ enum {
 struct swap_info_struct {
 	unsigned long flags;
 	int prio;			/* swap priority */
+	signed char	type;		/* strange name for an index */
 	int next;			/* next entry on swap list */
 	struct file *swap_file;
 	struct block_device *bdev;
@@ -179,6 +180,8 @@ struct swap_info_struct {
 	unsigned int max;
 	unsigned int inuse_pages;
 	unsigned int old_block_size;
+        unsigned long *frontswap_map;
+        unsigned int frontswap_pages;
 };
 
 struct swap_list_t {
