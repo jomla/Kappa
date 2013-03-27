@@ -22,7 +22,7 @@
 
 #include "a2xx_reg.h"
 
-unsigned int kgsl_cff_dump_enable;
+unsigned int kgsl_cff_dump_enable1;
 int kgsl_pm_regs_enabled;
 
 static uint32_t kgsl_ib_base;
@@ -67,7 +67,7 @@ DEFINE_SIMPLE_ATTRIBUTE(pm_regs_enabled_fops,
 static int kgsl_cff_dump_enable_set(void *data, u64 val)
 {
 #ifdef CONFIG_MSM_KGSL_CFF_DUMP
-	kgsl_cff_dump_enable = (val != 0);
+	kgsl_cff_dump_enable1 = (val != 0);
 	return 0;
 #else
 	return -EINVAL;
@@ -76,7 +76,7 @@ static int kgsl_cff_dump_enable_set(void *data, u64 val)
 
 static int kgsl_cff_dump_enable_get(void *data, u64 *val)
 {
-	*val = kgsl_cff_dump_enable;
+	*val = kgsl_cff_dump_enable1;
 	return 0;
 }
 
