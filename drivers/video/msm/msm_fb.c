@@ -1121,17 +1121,17 @@ static int msm_fb_register(struct msm_fb_data_type *mfd)
 			msm_fb_pan_display(var, fbi);
 		}	/* Flip buffer */
 		
-                
+                //Removed custom logo. Let's be modest.                
 		// Sleep
 		
-		usleep(500000);	
+		//usleep(500000);	
 		
 		
 
-		if (!load_565rle_image(INIT_STOCK_IMAGE_FILE)) {
-                        msm_fb_open(fbi, 0);
-                        msm_fb_pan_display(var, fbi);
-                }       /* Flip buffer */
+		//if (!load_565rle_image(INIT_STOCK_IMAGE_FILE)) {
+                //        msm_fb_open(fbi, 0);
+                //        msm_fb_pan_display(var, fbi);
+                //}       /* Flip buffer */
 
 	}
 #endif
