@@ -13,7 +13,7 @@ then
 	rm /tmp/p.patch 
 fi
 
-wget -r $1 -o /tmp/p.patch
+wget -r $1 -O /tmp/p.patch
 
 if [ ! -e /tmp/p.patch  -o $? != 0 ]
 then
