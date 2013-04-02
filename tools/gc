@@ -34,6 +34,7 @@ else
 		echo "There was an error applying the patch"
 		exit -4
 	else
+		rm /tmp/p.patch
 		echo "Patch applied succesfully"
 	fi
 fi
