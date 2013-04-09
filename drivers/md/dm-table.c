@@ -497,6 +497,63 @@ static int __table_get_device(struct dm_table *t, struct dm_target *ti,
 	return 0;
 }
 
+//mine
+static int __table_get_device2(struct dm_table *t, struct dm_target *ti,
+                       const char *path, fmode_t mode, struct dm_dev **result)
+{
+         int r;
+         dev_t uninitialized_var(dev);
+         struct dm_dev_internal *dd;
+         unsigned int major, minor;
+ 
+         BUG_ON(!t);
+ 
+         if (sscanf(path, "%u:%u", &major, &minor) == 2) {
+                 /* Extract the major/minor numbers */
+                 dev = MKDEV(major, minor);
+                 if (MAJOR(dev) != major || MINOR(dev) != minor)
+                         return -EOVERFLOW;
+         } else {
+                 /* convert the path to a device */
+                 struct block_device *bdev = lookup_bdev(path);
+ 
+                 if (IS_ERR(bdev))
+                         return PTR_ERR(bdev);
+                 dev = bdev->bd_dev;
+                 bdput(bdev);
+         }
+ 
+         dd = find_device(&t->devices, dev);
+         if (!dd) {
+                 dd = kmalloc(sizeof(*dd), GFP_KERNEL);
+                 if (!dd)
+                         return -ENOMEM;
+ 
+                 dd->dm_dev.mode = mode;
+                 dd->dm_dev.bdev = NULL;
+ 
+                 if ((r = open_dev(dd, dev, t->md))) {
+                         kfree(dd);
+                         return r;
+                 }
+ 
+                 format_dev_t(dd->dm_dev.name, dev);
+ 
+                 atomic_set(&dd->count, 0);
+                 list_add(&dd->list, &t->devices);
+ 
+         } else if (dd->dm_dev.mode != (mode | dd->dm_dev.mode)) {
+                 r = upgrade_mode(dd, mode, t->md);
+                 if (r)
+                         return r;
+         }
+         atomic_inc(&dd->count);
+ 
+         *result = &dd->dm_dev;
+         return 0;
+ }
+//end of mine
+
 /*
  * Returns the minimum that is _not_ zero, unless both are zero.
  */
@@ -547,6 +604,13 @@ int dm_get_device(struct dm_target *ti, const char *path, sector_t start,
 				  start, len, mode, result);
 }
 
+//mine
+int dm_get_device2(struct dm_target *ti, const char *path, fmode_t mode,
+                   struct dm_dev **result)
+{
+         return __table_get_device2(ti->table, ti, path, mode, result);
+}
+//end of mine
 
 /*
  * Decrement a devices use count and remove it if necessary.

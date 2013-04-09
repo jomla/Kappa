@@ -122,6 +122,10 @@ struct dm_dev {
  */
 int dm_get_device(struct dm_target *ti, const char *path, sector_t start,
 		  sector_t len, fmode_t mode, struct dm_dev **result);
+//mine
+int dm_get_device2(struct dm_target *ti, const char *path, fmode_t mode,
+			struct dm_dev **result);
+//end of mine
 void dm_put_device(struct dm_target *ti, struct dm_dev *d);
 
 /*
