@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export KAREL=`(cat configs/release)`
+
 BUILD_FILE=/home/ka/build/Kappa/configs/mango_build.txt
 if [ ! -e $BUILD_FILE ]; 
 then
