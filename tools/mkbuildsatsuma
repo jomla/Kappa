@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export KAREL=`(cat configs/release)`
+
 BUILD_FILE=/home/ka/build/Kappa/configs/satsuma_build.txt
 if [ ! -e $BUILD_FILE ]; 
 then
