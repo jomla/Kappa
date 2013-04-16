@@ -89,7 +89,6 @@
 #include <linux/security.h>
 #include <linux/syscalls.h>
 #include <linux/ctype.h>
-#include <linux/rcupdate.h>
 
 #include <asm/tlbflush.h>
 #include <asm/uaccess.h>
@@ -1196,15 +1195,14 @@ SYSCALL_DEFINE4(migrate_pages, pid_t, pid, unsigned long, maxnode,
 		return err;
 
 	/* Find the mm_struct */
-	rcu_read_lock();
+	read_lock(&tasklist_lock);
 	task = pid ? find_task_by_vpid(pid) : current;
 	if (!task) {
-		rcu_read_unlock();
-		err= -ESRCH;
-		goto out;
+		read_unlock(&tasklist_lock);
+		return -ESRCH;
 	}
 	mm = get_task_mm(task);
-	rcu_read_unlock();
+	read_unlock(&tasklist_lock);
 
 	if (!mm)
 		return -EINVAL;
