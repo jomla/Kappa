@@ -1,0 +1,43 @@
+#!/bin/bash
+#Easier to apply patches
+
+
+if [ "$1" == "" ]
+then
+	echo "Please provide a patch URL"
+	exit -1
+fi
+
+if [ -e /tmp/p.patch ] 
+then
+	rm /tmp/p.patch 
+fi
+
+wget -r $1 -O /tmp/p.patch
+
+if [ ! -e /tmp/p.patch  -o $? != 0 ]
+then
+	echo "There was a problem downloading the patch"
+	exit -2
+fi
+
+git apply --check /tmp/p.patch
+
+if [ $? != 0 ] 
+then
+	echo "The patch can't be applied"
+	exit -3
+else
+	git am --signoff < /tmp/p.patch
+	if [ $? != 0 ]
+	then
+		echo "There was an error applying the patch"
+		exit -4
+	else
+		rm /tmp/p.patch
+		echo "Patch applied succesfully"
+	fi
+fi
+
+exit 0
+
