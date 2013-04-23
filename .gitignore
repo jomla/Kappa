@@ -125,3 +125,4 @@ co
 include/linux/autoconf.h
 .config.good
 include/linux/utsrelease.h
+utsrelease.h
