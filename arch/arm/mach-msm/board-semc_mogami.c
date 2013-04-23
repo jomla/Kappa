@@ -4388,6 +4388,7 @@ static struct keyreset_platform_data mogami_reset_keys_pdata = {
                KEY_HOME,
                0
        },
+       .down_time_ms = 3000,
 };
 
 struct platform_device mogami_reset_keys_device = {
