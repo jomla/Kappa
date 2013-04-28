@@ -37,6 +37,8 @@
 #define MAX_FREQUENCY_UP_THRESHOLD		(100)
 #define DEFAULT_FREQ_BOOST_TIME			(2500000)
 
+u64 freq_boosted_time;
+
 /*
  * The polling frequency of this governor depends on the capability of
  * the processor. Default polling frequency is 1000 times the transition
@@ -515,6 +517,18 @@ static struct attribute_group dbs_attr_group_old = {
 /*** delete after deprecation time ***/
 
 /************************** sysfs end ************************/
+
+static void dbs_freq_increase(struct cpufreq_policy *p, unsigned int freq)
+{
+	if (dbs_tuners_ins.powersave_bias)
+		freq = powersave_bias_target(p, freq, CPUFREQ_RELATION_H);
+	else if (p->cur == p->max)
+		return;
+
+	__cpufreq_driver_target(p, freq, dbs_tuners_ins.powersave_bias ?
+			CPUFREQ_RELATION_L : CPUFREQ_RELATION_H);
+}
+
 
 static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 {
