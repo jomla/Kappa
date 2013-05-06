@@ -8,12 +8,19 @@ then
 	exit -1
 fi
 
+patch=$1
+
+if [[ "$1" != "*.patch" ]]
+then
+	patch="$1.patch"
+fi
+
 if [ -e /tmp/p.patch ] 
 then
 	rm /tmp/p.patch 
 fi
 
-wget -r $1 -O /tmp/p.patch
+wget -r $patch -O /tmp/p.patch
 
 if [ ! -e /tmp/p.patch  -o $? != 0 ]
 then
