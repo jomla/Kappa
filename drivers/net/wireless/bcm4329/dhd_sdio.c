@@ -5813,7 +5813,7 @@ dhd_bus_devreset(dhd_pub_t *dhdp, uint8 flag)
 					DHD_TRACE(("%s: WLAN ON DONE\n", __FUNCTION__));
 					} else {
 						dhd_bus_stop(bus, FALSE);
-						dhdsdio_release_dongle(bus, bus->dhd->osh);
+						dhdsdio_release_dongle(bus, bus->dhd->osh, FALSE);
 					}
 				} else
 					bcmerror = BCME_SDIO_ERROR;
