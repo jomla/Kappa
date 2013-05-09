@@ -126,3 +126,5 @@ include/linux/autoconf.h
 .config.good
 include/linux/utsrelease.h
 utsrelease.h
+scripts/kconfig/mconf
+include/linux/utsrelease.h
