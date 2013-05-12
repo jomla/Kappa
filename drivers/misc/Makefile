@@ -47,3 +47,6 @@ obj-$(CONFIG_LM3561)		+= lm356x.o
 obj-$(CONFIG_FPC_CONNECTOR_TEST) += fpc_connector_test.o
 
 obj-$(CONFIG_SEMC_ONESEG_TUNER_PM) += oneseg_tunerpm_driver.o
+
+obj-$(CONFIG_WRITEBACK_CONTROL)  += writeback_control.o
+
