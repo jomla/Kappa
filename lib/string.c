@@ -379,13 +379,6 @@ char *strstrip(char *s)
 }
 EXPORT_SYMBOL(strstrip);
 
-char *skip_spaces(const char *str)
-{
-	while (isspace(*str))
-		++str;
-	return (char *)str;
-}
-EXPORT_SYMBOL(skip_spaces);
 
 /**
  * strim - Removes leading and trailing whitespace from @s.
