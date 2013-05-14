@@ -135,26 +135,26 @@ void cpupri_set(struct cpupri *cp, int cpu, int newpri)
 	if (likely(newpri != CPUPRI_INVALID)) {
 		struct cpupri_vec *vec = &cp->pri_to_cpu[newpri];
 
-		raw_spin_lock_irqsave(&vec->lock, flags);
+		spin_lock_irqsave(&vec->lock, flags);
 
 		cpumask_set_cpu(cpu, vec->mask);
 		vec->count++;
 		if (vec->count == 1)
 			set_bit(newpri, cp->pri_active);
 
-		raw_spin_unlock_irqrestore(&vec->lock, flags);
+		spin_unlock_irqrestore(&vec->lock, flags);
 	}
 	if (likely(oldpri != CPUPRI_INVALID)) {
 		struct cpupri_vec *vec  = &cp->pri_to_cpu[oldpri];
 
-		raw_spin_lock_irqsave(&vec->lock, flags);
+		spin_lock_irqsave(&vec->lock, flags);
 
 		vec->count--;
 		if (!vec->count)
 			clear_bit(oldpri, cp->pri_active);
 		cpumask_clear_cpu(cpu, vec->mask);
 
-		raw_spin_unlock_irqrestore(&vec->lock, flags);
+		spin_unlock_irqrestore(&vec->lock, flags);
 	}
 
 	*currpri = newpri;
@@ -180,7 +180,7 @@ int cpupri_init(struct cpupri *cp, bool bootmem)
 	for (i = 0; i < CPUPRI_NR_PRIORITIES; i++) {
 		struct cpupri_vec *vec = &cp->pri_to_cpu[i];
 
-		raw_spin_lock_init(&vec->lock);
+		spin_lock_init(&vec->lock);
 		vec->count = 0;
 		if (!zalloc_cpumask_var(&vec->mask, gfp))
 			goto cleanup;
