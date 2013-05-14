@@ -1,8 +1,9 @@
 VERSION = 2
 PATCHLEVEL = 6
-SUBLEVEL = 32
-EXTRAVERSION = .60
+SUBLEVEL = 33
+EXTRAVERSION = -rc1
 NAME = Man-Eating Seals of Antiquity
+
 
 # *DOCUMENTATION*
 # To see a list of typical targets execute "make help"
