@@ -5,9 +5,9 @@
 # error "please don't include this file directly"
 #endif
 
-typedef struct arch_spinlock {
+typedef struct raw_spinlock {
 	unsigned int slock;
-} arch_spinlock_t;
+} raw_spinlock_t;
 
 #define __RAW_SPIN_LOCK_UNLOCKED	{ 0 }
 

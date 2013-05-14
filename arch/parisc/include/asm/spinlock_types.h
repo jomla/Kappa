@@ -9,10 +9,10 @@ typedef struct {
 	volatile unsigned int lock[4];
 # define __RAW_SPIN_LOCK_UNLOCKED	{ { 1, 1, 1, 1 } }
 #endif
-} arch_spinlock_t;
+} raw_spinlock_t;
 
 typedef struct {
-	arch_spinlock_t lock;
+	raw_spinlock_t lock;
 	volatile int counter;
 } raw_rwlock_t;
 
