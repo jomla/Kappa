@@ -1,4 +1,5 @@
-/* Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
+/* Copyright (c) 2011, Code Aurora Forum. All rights reserved.
+ * Copyright (C) 2011 Sony Ericsson Mobile Communications AB.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -356,8 +357,8 @@ err_ptpool_remove:
 int kgsl_gpummu_pt_equal(struct kgsl_pagetable *pt,
 					unsigned int pt_base)
 {
-	struct kgsl_gpummu_pt *gpummu_pt = pt ? pt->priv : NULL;
-	return gpummu_pt && pt_base && (gpummu_pt->base.gpuaddr == pt_base);
+	struct kgsl_gpummu_pt *gpummu_pt = pt->priv;
+	return pt && pt_base && (gpummu_pt->base.gpuaddr == pt_base);
 }
 
 void kgsl_gpummu_destroy_pagetable(void *mmu_specific_pt)
@@ -396,6 +397,25 @@ kgsl_pt_map_get(struct kgsl_gpummu_pt *pt, uint32_t pte)
 	return baseptr[pte] & GSL_PT_PAGE_ADDR_MASK;
 }
 
+static unsigned int kgsl_gpummu_pt_get_flags(struct kgsl_pagetable *pt,
+				enum kgsl_deviceid id)
+{
+	unsigned int result = 0;
+	struct kgsl_gpummu_pt *gpummu_pt = (struct kgsl_gpummu_pt *)
+						pt->priv;
+
+	if (pt == NULL)
+		return 0;
+
+	spin_lock(&pt->lock);
+	if (gpummu_pt->tlb_flags && (1<<id)) {
+		result = KGSL_MMUFLAGS_TLBFLUSH;
+		gpummu_pt->tlb_flags &= ~(1<<id);
+	}
+	spin_unlock(&pt->lock);
+	return result;
+}
+
 static void kgsl_gpummu_pagefault(struct kgsl_device *device)
 {
 	unsigned int reg;
@@ -420,6 +440,7 @@ static void *kgsl_gpummu_create_pagetable(void)
 	if (!gpummu_pt)
 		return NULL;
 
+	gpummu_pt->tlb_flags = 0;
 	gpummu_pt->last_superpte = 0;
 
 	gpummu_pt->tlbflushfilter.size = (CONFIG_MSM_KGSL_PAGE_TABLE_SIZE /
@@ -483,6 +504,7 @@ static void kgsl_gpummu_setstate(struct kgsl_device *device,
 				struct kgsl_pagetable *pagetable)
 {
 	struct kgsl_mmu *mmu = &device->mmu;
+	struct kgsl_gpummu_pt *gpummu_pt;
 
 	if (mmu->flags & KGSL_FLAGS_STARTED) {
 		/* page table not current, then setup mmu to use new
@@ -490,10 +512,10 @@ static void kgsl_gpummu_setstate(struct kgsl_device *device,
 		 */
 		if (mmu->hwpagetable != pagetable) {
 			mmu->hwpagetable = pagetable;
-			/* Since we do a TLB flush the tlb_flags should
-			* be cleared by calling kgsl_mmu_pt_get_flags
-			*/
-			kgsl_mmu_pt_get_flags(pagetable, mmu->device->id);
+			spin_lock(&mmu->hwpagetable->lock);
+			gpummu_pt = mmu->hwpagetable->priv;
+			gpummu_pt->tlb_flags &= ~(1<<device->id);
+			spin_unlock(&mmu->hwpagetable->lock);
 
 			/* call device specific set page table */
 			kgsl_setstate(mmu->device, KGSL_MMUFLAGS_TLBFLUSH |
@@ -648,8 +670,7 @@ GSL_TLBFLUSH_FILTER_ISDIRTY((_p) / GSL_PT_SUPER_PTE))
 static int
 kgsl_gpummu_map(void *mmu_specific_pt,
 		struct kgsl_memdesc *memdesc,
-		unsigned int protflags,
-		unsigned int *tlb_flags)
+		unsigned int protflags)
 {
 	unsigned int pte;
 	struct kgsl_gpummu_pt *gpummu_pt = mmu_specific_pt;
@@ -664,7 +685,7 @@ kgsl_gpummu_map(void *mmu_specific_pt,
 		flushtlb = 1;
 
 	for_each_sg(memdesc->sg, s, memdesc->sglen, i) {
-		unsigned int paddr = kgsl_get_sg_pa(s);
+		unsigned int paddr = sg_phys(s);
 		unsigned int j;
 
 		/* Each sg entry might be multiple pages long */
@@ -683,7 +704,7 @@ kgsl_gpummu_map(void *mmu_specific_pt,
 
 	if (flushtlb) {
 		/*set all devices as needing flushing*/
-		*tlb_flags = UINT_MAX;
+		gpummu_pt->tlb_flags = UINT_MAX;
 		GSL_TLBFLUSH_FILTER_RESET();
 	}
 
@@ -743,4 +764,5 @@ struct kgsl_mmu_pt_ops gpummu_pt_ops = {
 	.mmu_create_pagetable = kgsl_gpummu_create_pagetable,
 	.mmu_destroy_pagetable = kgsl_gpummu_destroy_pagetable,
 	.mmu_pt_equal = kgsl_gpummu_pt_equal,
+	.mmu_pt_get_flags = kgsl_gpummu_pt_get_flags,
 };

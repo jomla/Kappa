@@ -47,7 +47,6 @@
 #define KGSL_STATE_SUSPEND	0x00000010
 #define KGSL_STATE_HUNG		0x00000020
 #define KGSL_STATE_DUMP_AND_RECOVER	0x00000040
-#define KGSL_STATE_SLUMBER  0x00000080
 
 #define KGSL_GRAPHICS_MEMORY_LOW_WATERMARK  0x1000000
 
@@ -91,7 +90,6 @@ struct kgsl_functable {
 	void (*power_stats)(struct kgsl_device *device,
 		struct kgsl_power_stats *stats);
 	void (*irqctrl)(struct kgsl_device *device, int state);
-	unsigned int (*gpuid)(struct kgsl_device *device);
 	/* Optional functions - these functions are not mandatory.  The
 	   driver will check that the function pointer is not NULL before
 	   calling the hook */
@@ -187,18 +185,13 @@ struct kgsl_context {
 
 	/* Pointer to the device specific context information */
 	void *devctxt;
-	/*
-	 * Status indicating whether a gpu reset occurred and whether this
-	 * context was responsible for causing it
-	 */
-	unsigned int reset_status;
 };
 
 struct kgsl_process_private {
 	unsigned int refcnt;
 	pid_t pid;
 	spinlock_t mem_lock;
-	struct rb_root mem_rb;
+	struct list_head mem_list;
 	struct kgsl_pagetable *pagetable;
 	struct list_head list;
 	struct kobject kobj;
@@ -246,11 +239,6 @@ static inline void kgsl_regwrite(struct kgsl_device *device,
 static inline int kgsl_idle(struct kgsl_device *device, unsigned int timeout)
 {
 	return device->ftbl->idle(device, timeout);
-}
-
-static inline unsigned int kgsl_gpuid(struct kgsl_device *device)
-{
-	return device->ftbl->gpuid(device);
 }
 
 static inline int kgsl_create_device_sysfs_files(struct device *root,
