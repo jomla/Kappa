@@ -1747,7 +1747,7 @@ int mem_cgroup_try_charge_swapin(struct mm_struct *mm,
 	 * to go on to do_swap_page()'s pte_same() test, which should fail.
 	 */
 	if (!PageSwapCache(page))
-		return 0;
+		goto charge_cur_mm;
 	mem = try_get_mem_cgroup_from_swapcache(page);
 	if (!mem)
 		goto charge_cur_mm;
@@ -2008,12 +2008,12 @@ int mem_cgroup_prepare_migration(struct page *page, struct mem_cgroup **ptr)
 	}
 	unlock_page_cgroup(pc);
 
-	*ptr = mem;
 	if (mem) {
-		ret = __mem_cgroup_try_charge(NULL, GFP_KERNEL, ptr, false,
+		ret = __mem_cgroup_try_charge(NULL, GFP_KERNEL, &mem, false,
 						page);
 		css_put(&mem->css);
 	}
+	*ptr = mem;
 	return ret;
 }
 

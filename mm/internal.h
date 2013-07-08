@@ -59,7 +59,7 @@ extern void prep_compound_page(struct page *page, unsigned long order);
  */
 static inline unsigned long page_order(struct page *page)
 {
-	/* PageBuddy() must be checked by the caller */
+	VM_BUG_ON(!PageBuddy(page));
 	return page_private(page);
 }
 
@@ -152,6 +152,7 @@ static inline int is_mlocked_vma(struct vm_area_struct *v, struct page *p)
 }
 static inline void clear_page_mlock(struct page *page) { }
 static inline void mlock_vma_page(struct page *page) { }
+static inline void munlock_vma_page(struct page *page) { }
 static inline void mlock_migrate_page(struct page *new, struct page *old) { }
 
 #endif /* CONFIG_HAVE_MLOCKED_PAGE_BIT */
