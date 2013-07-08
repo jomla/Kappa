@@ -1954,10 +1954,13 @@ CONFIG_USB_STORAGE=m
 #
 # USB port drivers
 #
-CONFIG_USB_SERIAL=y
+CONFIG_USB_SERIAL=m                                                                                                                    
+CONFIG_USB_SERIAL_GENERIC=y                                                                                                            
+CONFIG_USB_SERIAL_CH341=m                                                                                                              
+CONFIG_USB_SERIAL_CP210X=m                                                                                                             
+CONFIG_USB_SERIAL_PL2303=m                                                                                                             
+CONFIG_USB_SERIAL_TI=m                                                                                                                 
 CONFIG_USB_SERIAL_CONSOLE=y
-CONFIG_USB_SERIAL_GENERIC=y
-
 
 #
 # USB Miscellaneous drivers
