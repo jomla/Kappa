@@ -1,0 +1,22 @@
+In file included from init/main.c:51:0:
+include/linux/rmap.h: In function 'page_anon_vma':
+include/linux/rmap.h:47:38: error: 'PAGE_MAPPING_FLAGS' undeclared (first use in this function)
+include/linux/rmap.h:47:38: note: each undeclared identifier is reported only once for each function it appears in
+include/linux/rmap.h:50:2: error: implicit declaration of function 'page_rmapping' [-Werror=implicit-function-declaration]
+include/linux/rmap.h:50:2: error: return makes pointer from integer without a cast [-Werror]
+cc1: all warnings being treated as errors
+make[1]: *** [init/main.o] Error 1
+make[1]: *** Waiting for unfinished jobs....
+make[1]: *** [arch/arm/vfp/vfpmodule.o] Interrupt
+make[1]: *** [arch/arm/mm/dma-mapping.o] Interrupt
+make[1]: *** [arch/arm/mm/init.o] Interrupt
+make[1]: *** [arch/arm/mm/iomap.o] Interrupt
+make[1]: *** [arch/arm/mach-msm/dma.o] Interrupt
+make[1]: *** [arch/arm/mach-msm/memory.o] Interrupt
+make[1]: *** [arch/arm/kernel/ptrace.o] Interrupt
+make: *** [arch/arm/kernel] Interrupt
+make: *** [arch/arm/mm] Interrupt
+make: *** [arch/arm/mach-msm] Interrupt
+make: *** [arch/arm/vfp] Interrupt
+make[1]: *** [init/do_mounts.o] Interrupt
+make: *** [init] Interrupt

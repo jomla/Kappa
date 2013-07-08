@@ -631,6 +631,9 @@ void page_address_init(void);
  * refers to user virtual address space into which the page is mapped.
  */
 #define PAGE_MAPPING_ANON	1
+#define PAGE_MAPPING_KSM  2
+#define PAGE_MAPPING_FLAGS  (PAGE_MAPPING_ANON | PAGE_MAPPING_KSM)
+
 
 extern struct address_space swapper_space;
 static inline struct address_space *page_mapping(struct page *page)
@@ -647,6 +650,13 @@ static inline struct address_space *page_mapping(struct page *page)
 		mapping = NULL;
 	return mapping;
 }
+
+/* Neutral page->mapping pointer to address_space or anon_vma or other */
+static inline void *page_rmapping(struct page *page)
+{
+  return (void *)((unsigned long)page->mapping & ~PAGE_MAPPING_FLAGS);
+}
+
 
 static inline int PageAnon(struct page *page)
 {
