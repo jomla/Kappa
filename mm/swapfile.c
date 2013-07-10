@@ -30,6 +30,7 @@
 #include <linux/syscalls.h>
 #include <linux/memcontrol.h>
 #include <linux/ksm.h>
+#include <linux/frontswap.h>
 
 #include <asm/pgtable.h>
 #include <asm/tlbflush.h>
@@ -48,9 +49,9 @@ static const char Unused_file[] = "Unused swap file entry ";
 static const char Bad_offset[] = "Bad swap offset entry ";
 static const char Unused_offset[] = "Unused swap offset entry ";
 
-static struct swap_list_t swap_list = {-1, -1};
+struct swap_list_t swap_list = {-1, -1};
 
-static struct swap_info_struct swap_info[MAX_SWAPFILES];
+struct swap_info_struct swap_info[MAX_SWAPFILES];
 
 static DEFINE_MUTEX(swapon_mutex);
 
@@ -1029,7 +1030,7 @@ static unsigned int find_next_to_unuse(struct swap_info_struct *si,
  * and then search for the process using it.  All the necessary
  * page table adjustments can then be made atomically.
  */
-static int try_to_unuse(unsigned int type)
+int try_to_unuse(unsigned int type)
 {
 	struct swap_info_struct * si = &swap_info[type];
 	struct mm_struct *start_mm;
@@ -2179,4 +2180,66 @@ get_swap_info_struct(unsigned type)
 {
 	return &swap_info[type];
 }
+
+int valid_swaphandles(swp_entry_t entry, unsigned long *offset)                                                                                                                               
+{                                                                                                                                                                                             
+        struct swap_info_struct *si;                                                                                                                                                          
+        int our_page_cluster = page_cluster;                                                                                                                                                  
+        pgoff_t target, toff;                                                                                                                                                                 
+        pgoff_t base, end;                                                                                                                                                                    
+        int nr_pages = 0;                                                                                                                                                                     
+                                                                                                                                                                                              
+        if (!our_page_cluster)  /* no readahead */                                                                                                                                            
+                return 0;                                                                                                                                                                     
+                                                                                                                                                                                              
+        si = &swap_info[swp_type(entry)];                                                                                                                                                     
+        target = swp_offset(entry);                                                                                                                                                           
+        base = (target >> our_page_cluster) << our_page_cluster;                                                                                                                              
+        end = base + (1 << our_page_cluster);                                                                                                                                                 
+        if (!base)              /* first page is swap header */                                                                                                                               
+                base++;                                                                                                                                                                       
+                                                                                                                                                                                              
+        spin_lock(&swap_lock);                                                                                                                                                                
+        if (frontswap_test(si, target)) {                                                                                                                                                     
+                spin_unlock(&swap_lock);                                                                                                                                                      
+                return 0;                                                                                                                                                                     
+        }                                                                                                                                                                                     
+                                                                                                                                                                                              
+        if (end > si->max)      /* don't go beyond end of map */                                                                                                                              
+                end = si->max;                                                                                                                                                                
+                                                                                                                                                                                              
+        /* Count contiguous allocated slots above our target */                                                                                                                               
+        for (toff = target; ++toff < end; nr_pages++) {                                                                                                                                       
+                /* Don't read in free or bad pages */                                                                                                                                         
+                if (!si->swap_map[toff])                                                                                                                                                      
+                        break;                                                                                                                                                                
+                if (swap_count(si->swap_map[toff]) == SWAP_MAP_BAD)                                                                                                                           
+                        break;                                                                                                                                                                
+                if (frontswap_test(si, toff))                                                                                                                                                 
+                        break;                                                                                                                                                                
+                                                                                                                                                                                              
+        }                                                                                                                                                                                     
+                                                                                                                                                                                              
+        /* Count contiguous allocated slots below our target */                                                                                                                               
+        for (toff = target; --toff >= base; nr_pages++) {                                                                                                                                     
+                /* Don't read in free or bad pages */                                                                                                                                         
+                if (!si->swap_map[toff])                                                                                                                                                      
+                        break;                                                                                                                                                                
+                if (swap_count(si->swap_map[toff]) == SWAP_MAP_BAD)                                                                                                                           
+                        break;                                                                                                                                                                
+                                                                                                                                                                                              
+              if (frontswap_test(si, toff))                                                                                                                                                   
+                        break;                                                                                                                                                                
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+}                                                                                                                                                                                             
+        spin_unlock(&swap_lock);                                                                                                                                                              
+                                                                                                                                                                                              
+        /*                                                                                                                                                                                    
+         * Indicate starting offset, and return number of pages to get:                                                                                                                       
+         * if only 1, say 0, since there's then no readahead to be done.                                                                                                                      
+         */                                                                                                                                                                                   
+        *offset = ++toff;                                                                                                                                                                     
+        return nr_pages? ++nr_pages: 0;                                                                                                                                                       
+} 
 
