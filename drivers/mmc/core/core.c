@@ -261,7 +261,9 @@ int mmc_wait_for_cmd(struct mmc_host *host, struct mmc_command *cmd, int retries
 EXPORT_SYMBOL(mmc_wait_for_cmd);
 
 /**
- *	mmc_set_data_timeout - set the timeout for a data command
+ *	
+ * added this from linux 3.10 to get better performance for 64 gb sd cards cheers Jukkaman
+ * mmc_set_data_timeout - set the timeout for a data command
  *	@data: data phase for command
  *	@card: the MMC card associated with the data transfer
  *
@@ -303,15 +305,20 @@ void mmc_set_data_timeout(struct mmc_data *data, const struct mmc_card *card)
 		unsigned int timeout_us, limit_us;
 
 		timeout_us = data->timeout_ns / 1000;
-		timeout_us += data->timeout_clks * 1000 /
-			(card->host->ios.clock / 1000);
+		if (mmc_host_clk_rate(card->host))
+			timeout_us += data->timeout_clks * 1000 /
+				(mmc_host_clk_rate(card->host) / 1000);
 
 		if (data->flags & MMC_DATA_WRITE)
 			/*
-			 * The limit is really 250 ms, but that is
-			 * insufficient for some crappy cards.
+			 * The MMC spec "It is strongly recommended
+			 * for hosts to implement more than 500ms
+			 * timeout value even if the card indicates
+			 * the 250ms maximum busy length."  Even the
+			 * previous value of 300ms is known to be
+			 * insufficient for some cards.
 			 */
-			limit_us = 300000;
+			limit_us = 3000000;
 		else
 			limit_us = 100000;
 
@@ -323,6 +330,18 @@ void mmc_set_data_timeout(struct mmc_data *data, const struct mmc_card *card)
 			data->timeout_clks = 0;
 		}
 	}
+
+	/*
+	 * Some cards require longer data read timeout than indicated in CSD.
+	 * Address this by setting the read timeout to a "reasonably high"
+	 * value. For the cards tested, 300ms has proven enough. If necessary,
+	 * this value can be increased if other problematic cards require this.
+	 */
+	if (mmc_card_long_read_time(card) && data->flags & MMC_DATA_READ) {
+		data->timeout_ns = 300000000;
+		data->timeout_clks = 0;
+	}
+
 	/*
 	 * Some cards need very high timeouts if driven in SPI mode.
 	 * The worst observed timeout was 900ms after writing a
@@ -339,6 +358,7 @@ void mmc_set_data_timeout(struct mmc_data *data, const struct mmc_card *card)
 		}
 	}
 }
+
 EXPORT_SYMBOL(mmc_set_data_timeout);
 
 /**
